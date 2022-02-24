@@ -2,9 +2,12 @@
 
 <table>
     <tr>
-        <td><h1>User 
+        <td>
+            <h1>
+                User
 
-        </h1></td>
+            </h1>
+        </td>
     </tr>
     <tr>
         <td>
@@ -24,7 +27,7 @@
                     <td>Email:</td>
                     <td><input type="text" @bind="userEmail"></td>
                 </tr>
-                 <tr>
+                <tr>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 </tr>
@@ -40,22 +43,26 @@
                 </tr>
                 <tr>
                     <td>No:</td>
-                    <td><input type="text" @bind="userID"></td>
+                    <td><input type="text" @bind="txtUpdateId"></td>
                 </tr>
+                @if (isIdExist(txtUpdateId))
+                {
+                    user = userList.First(offset => offset.ID == txtUpdateId);
+                    <tr>
+                        <td>Name:</td>
+                        <td><input type="text" @bind="user.Name"></td>
+                    </tr>
+                    <tr>
+                        <td>Address:</td>
+                        <td><input type="text" @bind="user.Address"></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td><input type="text" @bind="user.Email"></td>
+                    </tr>
+                }
                 <tr>
-                    <td>Name:</td>
-                    <td><input type="text" @bind="userName"></td>
-                </tr>
-                <tr>
-                    <td>Address:</td>
-                    <td><input type="text" @bind="userAddress"></td>
-                </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td><input type="text" @bind="userEmail"></td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-primary">Update User</button></td>
+                    <td><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
                 </tr>
             </table>
         </td>
@@ -84,7 +91,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-primary">Read User</button></td>
+                    <td><button class="btn btn-primary" @onclick="ReadUser">Read User</button></td>
                 </tr>
             </table>
         </td>
@@ -97,10 +104,10 @@
                 </tr>
                 <tr>
                     <td>No:</td>
-                    <td><input type="text" @bind="userID"></td>
+                    <td><input type="text" @bind="txtDeleteId"></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-primary">Delete User</button></td>
+                    <td><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
                 </tr>
             </table>
         </td>
@@ -112,7 +119,8 @@
 
 @code {
 
-    private string userID { get; set; }
+    private string txtUpdateId { get; set; }
+    private string txtDeleteId { get; set; }
     private string userName { get; set; }
     private string userAddress { get; set; }
     private string userEmail { get; set; }
@@ -125,7 +133,7 @@
     {
         if (userAddress != null && userEmail != null && userName != null)
         {
-            await ApiCaller.AddUser(new User { ID = $"{GenerateId()}", Name = userName, Email = userEmail, Address = userAddress });
+            await ApiCaller.AddUserAsync(new User { ID = $"{GenerateId()}", Name = userName, Email = userEmail, Address = userAddress });
 
             ClearFields();
         }
@@ -138,14 +146,21 @@
 
     private async Task UpdateUser()
     {
-        
+        if(isIdExist(txtUpdateId))
+        {
+            userList = (await ApiCaller.GetUsersAsync()).ToList();
+
+            await ApiCaller.UpdateUserAsync(user);
+
+            ClearFields();
+        }
     }
 
     private async Task RemoveUser()
     {
-        if (isIdExist(userID))
+        if (isIdExist(txtDeleteId))
         {
-            await ApiCaller.DeleteUser(userID);
+            await ApiCaller.DeleteUserAsync(txtDeleteId);
 
             ClearFields();
         }
@@ -158,17 +173,17 @@
 
     private bool isIdExist(string value)
     {
-        return userList.Any(user => user.ID == value);
+        if (userList.Any())
+        {
+            return userList.Any(user => user.ID == value);
+        }
+
+        return false;
     }
 
     private void ClearFields()
     {
-        userID = userName = userEmail = userAddress = String.Empty;
+        txtUpdateId = txtDeleteId = userName = userEmail = userAddress = String.Empty;
 
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        userList = (await ApiCaller.GetUsersAsync()).ToList();
     }
 }
