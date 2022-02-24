@@ -1,0 +1,115 @@
+﻿@page "/counter"
+
+<h1>User Management</h1>
+
+<div>
+    <h2>Create User</h2>
+    Name: <input type="text" @bind="userName">
+    Address: <input type="text" @bind="userAddress">
+    Email: <input type="text" @bind="userEmail">
+    <button class="btn btn-primary" @onclick="AddUser">Add User</button>
+</div>
+<p />
+<div>
+    <h2>Read Users</h2>
+    @if (userList.Any())
+    {
+        <ul>
+            @foreach (var user in userList)
+            {
+                <li>@user.ID &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>The List is Empty</p>
+    }
+</div>
+<p />
+<table>
+    <h2>Update Users</h2>
+    <tr>
+        <td>No:</td>
+        <td><input type="text" @bind="userID"></td>
+    </tr>
+    @if (isIdExist(userID))
+    {
+        var user = userList.First(offset => offset.ID == userID);
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" @bind="user.Name"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td><input type="text" @bind="user.Address"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td> <input type="text" @bind="user.Email"></td>
+        </tr>
+    }
+
+</table>
+<p />
+<div>
+    <h2>Delete User</h2>
+    No:
+    <input type="text" @bind="userID">
+
+    <button class="btn btn-primary" @onclick="RemoveUser">Delete User</button>
+</div>
+
+
+
+
+@code {
+
+    private string userID { get; set; }
+    private string userName { get; set; }
+    private string userAddress { get; set; }
+    private string userEmail { get; set; }
+
+    private List<User> userList = new();
+
+    private async void AddUser()
+    {
+        if (userAddress != null && userEmail != null && userName != null)
+        {
+            await ApiCaller.AddUser(new User { ID = $"{GenerateId()}", Name = userName, Email = userEmail, Address = userAddress });
+
+            ClearFields();
+        }
+    }
+
+    private async void RemoveUser()
+    {
+        if (isIdExist(userID))
+        {
+            await ApiCaller.DeleteUser(userID);
+
+            ClearFields();
+        }
+    }
+
+    private string GenerateId()
+    {
+        return Enumerable.Range(1, int.MaxValue).Where(x => !isIdExist(x.ToString())).First().ToString();
+    }
+
+    private bool isIdExist(string value)
+    {
+        return userList.Any(user => user.ID == value);
+    }
+
+    private void ClearFields()
+    {
+        userID = userName = userEmail = userAddress = String.Empty;
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        userList = (await ApiCaller.GetUsersAsync()).ToList();
+    }
+}
