@@ -1,64 +1,111 @@
-﻿@page "/counter"
+﻿@page "/UserManagement"
 
-<h1>User Management</h1>
-
-<div>
-    <h2>Create User</h2>
-    Name: <input type="text" @bind="userName">
-    Address: <input type="text" @bind="userAddress">
-    Email: <input type="text" @bind="userEmail">
-    <button class="btn btn-primary" @onclick="AddUser">Add User</button>
-</div>
-<p />
-<div>
-    <h2>Read Users</h2>
-    @if (userList.Any())
-    {
-        <ul>
-            @foreach (var user in userList)
-            {
-                <li>@user.ID &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>The List is Empty</p>
-    }
-</div>
-<p />
 <table>
-    <h2>Update Users</h2>
     <tr>
-        <td>No:</td>
-        <td><input type="text" @bind="userID"></td>
+        <td><h1>User 
+
+        </h1></td>
     </tr>
-    @if (isIdExist(userID))
-    {
-        var user = userList.First(offset => offset.ID == userID);
-        <tr>
-            <td>Name:</td>
-            <td><input type="text" @bind="user.Name"></td>
-        </tr>
-        <tr>
-            <td>Address:</td>
-            <td><input type="text" @bind="user.Address"></td>
-        </tr>
-        <tr>
-            <td>Email:</td>
-            <td> <input type="text" @bind="user.Email"></td>
-        </tr>
-    }
-
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Create User</h2></td>
+                </tr>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" @bind="userName"></td>
+                </tr>
+                <tr>
+                    <td>Address:</td>
+                    <td><input type="text" @bind="userAddress"></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type="text" @bind="userEmail"></td>
+                </tr>
+                 <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-primary" @onclick="AddUser">Add User</button></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Update User</h2></td>
+                </tr>
+                <tr>
+                    <td>No:</td>
+                    <td><input type="text" @bind="userID"></td>
+                </tr>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" @bind="userName"></td>
+                </tr>
+                <tr>
+                    <td>Address:</td>
+                    <td><input type="text" @bind="userAddress"></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type="text" @bind="userEmail"></td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-primary">Update User</button></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Read User</h2></td>
+                </tr>
+                <tr>
+                    <td>
+                        @if (userList.Any())
+                        {
+                            <ul>
+                                @foreach (var user in userList)
+                                {
+                                    <li>@user.ID &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>The List is Empty</p>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-primary">Read User</button></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Delete User</h2></td>
+                </tr>
+                <tr>
+                    <td>No:</td>
+                    <td><input type="text" @bind="userID"></td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-primary">Delete User</button></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 </table>
-<p />
-<div>
-    <h2>Delete User</h2>
-    No:
-    <input type="text" @bind="userID">
-
-    <button class="btn btn-primary" @onclick="RemoveUser">Delete User</button>
-</div>
 
 
 

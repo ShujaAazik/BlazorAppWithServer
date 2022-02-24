@@ -10,7 +10,7 @@ namespace UserManagement___FrontEnd
 {
     public static class ApiCaller
     {
-        static string baseUrl = "/api/Users";
+        static string baseUrl = "https://localhost:7242/api/Users";
         static HttpClient client = new();
         static HttpResponseMessage response = null;
 

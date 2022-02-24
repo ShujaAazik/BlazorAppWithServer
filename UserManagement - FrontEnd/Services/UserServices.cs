@@ -24,9 +24,9 @@ namespace UserManagement___FrontEnd.Services
             throw new System.NotImplementedException();
         }
 
-        public Task<List<UserServices>> GetUsers()
+        public async Task<List<User>> GetUsers()
         {
-            throw new System.NotImplementedException();
+            return (List<User>) await httpClient.GetFromJsonAsync<IEnumerable<User>>("api/Users");
         }
 
         public Task UpdateUser(UserServices user)

@@ -29,7 +29,7 @@ namespace UserManagement___FrontEnd
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddHttpClient<IUserServices, UserServices>(client => client.BaseAddress = new Uri("https://localhost:7242"));
+            //services.AddHttpClient<IUserServices, UserServices>(client => client.BaseAddress = new Uri("https://localhost:7242"));
             services.AddSingleton<WeatherForecastService>();
         }
 

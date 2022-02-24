@@ -7,7 +7,7 @@ namespace UserManagement___FrontEnd.Services
     {
         public Task AddUser(UserServices user);
 
-        public Task<List<UserServices>> GetUsers();
+        public Task<List<User>> GetUsers();
 
         public Task UpdateUser(UserServices user);
 
