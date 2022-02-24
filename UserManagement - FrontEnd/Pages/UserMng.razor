@@ -119,7 +119,9 @@
 
     private List<User> userList = new();
 
-    private async void AddUser()
+    private User user = new();
+
+    private async Task AddUser()
     {
         if (userAddress != null && userEmail != null && userName != null)
         {
@@ -129,7 +131,17 @@
         }
     }
 
-    private async void RemoveUser()
+    private async Task ReadUser()
+    {
+        userList = (await ApiCaller.GetUsersAsync()).ToList();
+    }
+
+    private async Task UpdateUser()
+    {
+        
+    }
+
+    private async Task RemoveUser()
     {
         if (isIdExist(userID))
         {
