@@ -44,9 +44,9 @@
                     <td>No:</td>
                     <td><input type="text" @bind="txtUpdateId"></td>
                 </tr>
-                @if (isIdExist(txtUpdateId))
+                @if (Int32.TryParse(txtUpdateId, out Int32 userID) && isIdExist(userID))
                 {
-                    user = userList.First(offset => offset.ID == txtUpdateId);
+                    user = userList.First(offset => offset.UserId == userID);
                     <tr>
                         <td>Name:</td>
                         <td><input type="text" @bind="user.Name"></td>
@@ -79,7 +79,7 @@
                             <ul>
                                 @foreach (var user in userList)
                                 {
-                                    <li>@user.ID &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
+                                    <li>@user.UserId &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
                                 }
                             </ul>
                         }
@@ -132,7 +132,7 @@
     {
         if (userAddress != null && userEmail != null && userName != null)
         {
-            await ApiCaller.AddUserAsync(new User { ID = $"{GenerateId()}", Name = userName, Email = userEmail, Address = userAddress });
+            await UserRepositoryAPI.AddUserAsync(new User { Name = userName, Email = userEmail, Address = userAddress });
 
             ClearFields();
         }
@@ -140,17 +140,17 @@
 
     private async Task ReadUser()
     {
-        userList = (await ApiCaller.GetUsersAsync()).ToList();
+        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset=>offset.UserId).ToList();
     }
 
     private async Task UpdateUser()
     {
-        if (isIdExist(txtUpdateId))
+        if (isIdExist(Int32.Parse(txtUpdateId)))
         {
 
-            await ApiCaller.UpdateUserAsync(user);
+            await UserRepositoryAPI.UpdateUserAsync(user);
 
-            userList = (await ApiCaller.GetUsersAsync()).ToList();
+            userList = (await UserRepositoryAPI.GetUsersAsync()).ToList();
 
             ClearFields();
         }
@@ -158,24 +158,19 @@
 
     private async Task RemoveUser()
     {
-        if (isIdExist(txtDeleteId))
+        if (isIdExist(Int32.Parse(txtDeleteId)))
         {
-            await ApiCaller.DeleteUserAsync(txtDeleteId);
+            await UserRepositoryAPI.DeleteUserAsync(Int32.Parse(txtDeleteId));
 
             ClearFields();
         }
     }
 
-    private string GenerateId()
-    {
-        return Enumerable.Range(1, int.MaxValue).Where(x => !isIdExist(x.ToString())).First().ToString();
-    }
-
-    private bool isIdExist(string value)
+    private bool isIdExist(int value)
     {
         if (userList.Any())
         {
-            return userList.Any(user => user.ID == value);
+            return userList.Any(user => user.UserId == value);
         }
 
         return false;
@@ -188,7 +183,7 @@
 
     protected override async void OnInitialized()
     {
-        userList = (await ApiCaller.GetUsersAsync()).ToList();
+        ReadUser();
     }
 
 

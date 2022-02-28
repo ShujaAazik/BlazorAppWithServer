@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace UserManagement___FrontEnd
 {
-    public static class ApiCaller
+    public static class UserRepositoryAPI
     {
         static string baseUrl = "https://localhost:7242/api/Users";
         static HttpClient client = new();
@@ -30,12 +30,12 @@ namespace UserManagement___FrontEnd
         public async static Task UpdateUserAsync(User user)
         {
             var x = new StringContent(user.ToString());
-            response = await client.PutAsync(Path.Combine(baseUrl,user.ID), new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
+            response = await client.PutAsync(Path.Combine(baseUrl,$"{user.UserId}"), new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
         }
 
-        public async static Task DeleteUserAsync(string id)
+        public async static Task DeleteUserAsync(int id)
         {
-            response = await client.DeleteAsync(Path.Combine(baseUrl,id));
+            response = await client.DeleteAsync(Path.Combine(baseUrl,$"{id}"));
         }
     }
 }
