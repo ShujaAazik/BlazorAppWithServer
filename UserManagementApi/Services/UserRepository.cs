@@ -18,9 +18,9 @@ namespace UserManagementApi.Services
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> GetUser(string userId)
+        public async Task<User> GetUser(int userId)
         {
-            return await _context.Users.FirstAsync(id => id.ID == userId);
+            return await _context.Users.FirstAsync(id => id.UserId == userId);
         }
 
         public async Task UpdateUser(User user)
@@ -36,7 +36,7 @@ namespace UserManagementApi.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteUser(string id)
+        public async Task DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -46,9 +46,9 @@ namespace UserManagementApi.Services
             }
         }
 
-        public bool UserExists(string id)
+        public bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.ID == id);
+            return _context.Users.Any(e => e.UserId == id);
         }
     }
 }
