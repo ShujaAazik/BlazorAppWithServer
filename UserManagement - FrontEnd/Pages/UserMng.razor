@@ -30,17 +30,17 @@
                     <td class="col-auto"><h2>Update User</h2></td>
                 </tr>
                 <tr class="mb-1 row">
-                    <td class="col-sm-3 col-form-label">No</td>
+                    <td class="col-sm-3 col-form-label">User</td>
                     <td class="col-sm-9">
                         <EditForm Model="@user">
                             @if (userList.Any())
                             {
-                                <InputSelect @bind-Value="txtUserId" @onchange="offDisable" class="form-control">
-                                    user = userList.First(offset => offset.ID == txtUserId);
+                                <InputSelect Value="@user.UserId" DisplayName="@user.Name" ValueExpression="@(()=>user.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))"   class="form-control">                                                                                                                                                                 >
                                     @foreach (var user in userList)
                                     {
-                                    <option value="@user.UserId.ToString()">@user.Name</option>
+                                    <option value="@user.UserId">@user.Name</option>
                                     }
+                                    
                                 </InputSelect>
                             }
                         </EditForm>
@@ -48,15 +48,15 @@
                 </tr>
                 <tr class="mb-1 row">
                     <td class="col-sm-3 col-form-label">Name</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Name" disabled="@isDisable"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Name"></td>
                 </tr>
                 <tr class="mb-1 row">
                     <td class="col-sm-3 col-form-label">Address</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Address" disabled="@isDisable"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Address"></td>
                 </tr>
                 <tr class="mb-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Email" disabled="@isDisable"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Email"></td>
                 </tr>
                 <tr class="mb-1 row justify-content-center">
                     <td class="col-6"><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
@@ -101,7 +101,7 @@
 
 @code {
 
-    private string txtUserId { get; set; }
+    private int txtUserId { get; set; }
     private string userName { get; set; }
     private string userAddress { get; set; }
     private string userEmail { get; set; }
@@ -132,9 +132,16 @@
         userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
+    private async Task UpdateUserModel(int value)
+    {
+        user = userList.First(offset => offset.UserId == value);
+
+       // .WriteLine("testing 1234");
+    }
+
     private async Task UpdateUser()
     {
-        if (isIdExist(Int32.Parse(txtUserId)))
+        if (isIdExist(txtUserId))
         {
 
             await UserRepositoryAPI.UpdateUserAsync(user);
@@ -147,9 +154,9 @@
 
     private async Task RemoveUser()
     {
-        if (isIdExist(Int32.Parse(txtUserId)))
+        if (isIdExist(txtUserId))
         {
-            await UserRepositoryAPI.DeleteUserAsync(Int32.Parse(txtUserId));
+            await UserRepositoryAPI.DeleteUserAsync(txtUserId);
 
             ClearFields();
         }
@@ -167,12 +174,7 @@
 
     private void ClearFields()
     {
-        txtUserId = txtUserId = userName = userEmail = userAddress = String.Empty;
-    }
-
-    protected override async void OnInitialized()
-    {
-       userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        userName = userEmail = userAddress = String.Empty;
     }
 
 
