@@ -2,66 +2,65 @@
 
 <table>
     <tr>
-        <td>
-            <h1>
-                User
-            </h1>
-        </td>
-    </tr>
-    <tr>
-        <td>
+        <td class="col-6">
             <table>
-                <tr>
-                    <td><h2>Create User</h2></td>
+                <tr class="mb-1 row">
+                    <td class="col-auto"><h2>Create User</h2></td>
                 </tr>
-                <tr>
-                    <td>Name:</td>
-                    <td><input type="text" @bind="userName"></td>
+                <tr class="mb-3 row">
+                    <td class="col-sm-3 col-form-label">Name</td>
+                    <td class="col-sm-9"><input type="text" @bind="userName" class="form-control"></td>
                 </tr>
-                <tr>
-                    <td>Address:</td>
-                    <td><input type="text" @bind="userAddress"></td>
+                <tr class="mb-3 row">
+                    <td class="col-sm-3 col-form-label">Address</td>
+                    <td class="col-sm-9"><input type="text" @bind="userAddress" class="form-control"></td>
                 </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td><input type="text" @bind="userEmail"></td>
+                <tr class="mb-3 row">
+                    <td class="col-sm-3 col-form-label">Email</td>
+                    <td class="col-sm-9"><input type="text" @bind="userEmail" class="form-control"></td>
                 </tr>
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-primary" @onclick="AddUser">Add User</button></td>
+                <tr class="mb-2 row">
+                    <td class="col-auto"><button class="btn btn-primary" @onclick="AddUser">Add User</button></td>
                 </tr>
             </table>
         </td>
-        <td>
+        <td class="col-6">
             <table>
-                <tr>
-                    <td><h2>Update User</h2></td>
+                <tr class="mb-1 row">
+                    <td class="col-auto"><h2>Update User</h2></td>
                 </tr>
-                <tr>
-                    <td>No:</td>
-                    <td><input type="text" @bind="txtUpdateId"></td>
+                <tr class="mb-1 row">
+                    <td class="col-sm-3 col-form-label">No</td>
+                    <td class="col-sm-9">
+                        <EditForm Model="@user">
+                            @if (userList.Any())
+                            {
+                                <InputSelect @bind-Value="txtUserId" @onchange="offDisable" class="form-control">
+                                    user = userList.First(offset => offset.ID == txtUserId);
+                                    @foreach (var user in userList)
+                                    {
+                                    <option value="@user.UserId.ToString()">@user.Name</option>
+                                    }
+                                </InputSelect>
+                            }
+                        </EditForm>
+                    </td>
                 </tr>
-                @if (Int32.TryParse(txtUpdateId, out Int32 userID) && isIdExist(userID))
-                {
-                    user = userList.First(offset => offset.UserId == userID);
-                    <tr>
-                        <td>Name:</td>
-                        <td><input type="text" @bind="user.Name"></td>
-                    </tr>
-                    <tr>
-                        <td>Address:</td>
-                        <td><input type="text" @bind="user.Address"></td>
-                    </tr>
-                    <tr>
-                        <td>Email:</td>
-                        <td><input type="text" @bind="user.Email"></td>
-                    </tr>
-                }
-                <tr>
-                    <td><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
+                <tr class="mb-1 row">
+                    <td class="col-sm-3 col-form-label">Name</td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Name" disabled="@isDisable"></td>
+                </tr>
+                <tr class="mb-1 row">
+                    <td class="col-sm-3 col-form-label">Address</td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Address" disabled="@isDisable"></td>
+                </tr>
+                <tr class="mb-1 row">
+                    <td class="col-sm-3 col-form-label">Email</td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Email" disabled="@isDisable"></td>
+                </tr>
+                <tr class="mb-1 row justify-content-center">
+                    <td class="col-6"><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
+                    <td class="col-6"><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
                 </tr>
             </table>
         </td>
@@ -95,22 +94,6 @@
             </table>
         </td>
     </tr>
-    <tr>
-        <td>
-            <table>
-                <tr>
-                    <td><h2>Delete User</h2></td>
-                </tr>
-                <tr>
-                    <td>No:</td>
-                    <td><input type="text" @bind="txtDeleteId"></td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
 </table>
 
 
@@ -118,8 +101,7 @@
 
 @code {
 
-    private string txtUpdateId { get; set; }
-    private string txtDeleteId { get; set; }
+    private string txtUserId { get; set; }
     private string userName { get; set; }
     private string userAddress { get; set; }
     private string userEmail { get; set; }
@@ -127,6 +109,13 @@
     private List<User> userList = new();
 
     private User user = new();
+
+    private bool isDisable { get; set; } = true;
+
+    private void offDisable()
+    {
+        this.isDisable = false;
+    }
 
     private async Task AddUser()
     {
@@ -140,12 +129,12 @@
 
     private async Task ReadUser()
     {
-        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset=>offset.UserId).ToList();
+        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
     private async Task UpdateUser()
     {
-        if (isIdExist(Int32.Parse(txtUpdateId)))
+        if (isIdExist(Int32.Parse(txtUserId)))
         {
 
             await UserRepositoryAPI.UpdateUserAsync(user);
@@ -158,9 +147,9 @@
 
     private async Task RemoveUser()
     {
-        if (isIdExist(Int32.Parse(txtDeleteId)))
+        if (isIdExist(Int32.Parse(txtUserId)))
         {
-            await UserRepositoryAPI.DeleteUserAsync(Int32.Parse(txtDeleteId));
+            await UserRepositoryAPI.DeleteUserAsync(Int32.Parse(txtUserId));
 
             ClearFields();
         }
@@ -178,12 +167,12 @@
 
     private void ClearFields()
     {
-        txtUpdateId = txtDeleteId = userName = userEmail = userAddress = String.Empty;
+        txtUserId = txtUserId = userName = userEmail = userAddress = String.Empty;
     }
 
     protected override async void OnInitialized()
     {
-        ReadUser();
+       userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
 
