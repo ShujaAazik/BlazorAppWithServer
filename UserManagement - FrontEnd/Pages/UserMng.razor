@@ -4,18 +4,18 @@
     <tr>
         <td class="col-6">
             <table>
-                <tr class="mb-1 row">
+                <tr class="my-1 row">
                     <td class="col-auto"><h2>Create User</h2></td>
-                </tr>
-                <tr class="mb-3 row">
+                </tr>   
+                <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Name</td>
                     <td class="col-sm-9"><input type="text" @bind="userName" class="form-control"></td>
                 </tr>
-                <tr class="mb-3 row">
+                <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Address</td>
                     <td class="col-sm-9"><input type="text" @bind="userAddress" class="form-control"></td>
                 </tr>
-                <tr class="mb-3 row">
+                <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
                     <td class="col-sm-9"><input type="text" @bind="userEmail" class="form-control"></td>
                 </tr>
@@ -26,7 +26,7 @@
         </td>
         <td class="col-6">
             <table>
-                <tr class="mb-1 row">
+                <tr class="my-1 row">
                     <td class="col-auto"><h2>Update User</h2></td>
                 </tr>
                 <tr class="mb-1 row">
@@ -54,7 +54,7 @@
                     <td class="col-sm-3 col-form-label">Address</td>
                     <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Address" disabled="@isDisable"></td>
                 </tr>
-                <tr class="mb-1 row">
+                <tr class="mb-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
                     <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Email" disabled="@isDisable"></td>
                 </tr>
