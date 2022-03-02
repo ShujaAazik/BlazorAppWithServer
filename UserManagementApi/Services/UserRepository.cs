@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UserManagementApi.Models;
 
 namespace UserManagementApi.Services
@@ -13,7 +12,7 @@ namespace UserManagementApi.Services
             _context = context;
         }
 
-        public async Task<ActionResult<IEnumerable<User>>> ReadUsers()
+        public async Task<IEnumerable<User>> ReadUsers()
         {
             return await _context.Users.ToListAsync();
         }
