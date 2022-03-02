@@ -33,6 +33,7 @@
                     <td class="col-sm-3 col-form-label">User</td>
                     <td class="col-sm-9">
                         <EditForm Model="@updateUser">
+                            <DataAnnotationsValidator />
                             @if (userList.Any())
                             {
                                 <InputSelect id="UserNoSelect" Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
@@ -76,12 +77,13 @@
                     <td>
                         @if (userList.Any())
                         {
-                            <ul>
+                            <table class="table table-md table-striped table-bordered">
+                                <tr><th>User Id</th><th>Name</th><th>Address</th><th>Email</th></tr>
                                 @foreach (var user in userList)
                                 {
-                                    <li>@user.UserId &emsp; @user.Name &emsp; @user.Address &emsp; @user.Email</li>
+                                    <tr><td>@user.UserId</td><td>@user.Name</td><td>@user.Address</td><td>@user.Email</td></tr>
                                 }
-                            </ul>
+                            </table>
                         }
                         else
                         {
@@ -120,6 +122,8 @@
             await UserRepositoryAPI.AddUserAsync(addUser);
 
             addUser = new();
+
+            userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
         }
     }
 
@@ -140,7 +144,7 @@
     {
         await UserRepositoryAPI.UpdateUserAsync(updateUser);
 
-        userList = (await UserRepositoryAPI.GetUsersAsync()).ToList();
+        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
 
         ClearFields();
     }
@@ -150,6 +154,8 @@
         await UserRepositoryAPI.DeleteUserAsync(updateUser.UserId);
 
         ClearFields();
+
+        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
     private void ClearFields()
