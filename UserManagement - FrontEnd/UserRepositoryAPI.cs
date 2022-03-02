@@ -23,13 +23,11 @@ namespace UserManagement___FrontEnd
 
         public async static Task AddUserAsync(User user)
         {
-            var x = new StringContent(user.ToString());
             response = await client.PostAsync(baseUrl,new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
         }
 
         public async static Task UpdateUserAsync(User user)
         {
-            var x = new StringContent(user.ToString());
             response = await client.PutAsync(Path.Combine(baseUrl,$"{user.UserId}"), new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
         }
 

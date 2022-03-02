@@ -6,18 +6,18 @@
             <table>
                 <tr class="my-1 row">
                     <td class="col-auto"><h2>Create User</h2></td>
-                </tr>   
+                </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Name</td>
-                    <td class="col-sm-9"><input type="text" @bind="userName" class="form-control"></td>
+                    <td class="col-sm-9"><input type="text" @bind="addUser.Name" class="form-control"></td>
                 </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Address</td>
-                    <td class="col-sm-9"><input type="text" @bind="userAddress" class="form-control"></td>
+                    <td class="col-sm-9"><input type="text" @bind="addUser.Address" class="form-control"></td>
                 </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
-                    <td class="col-sm-9"><input type="text" @bind="userEmail" class="form-control"></td>
+                    <td class="col-sm-9"><input type="text" @bind="addUser.Email" class="form-control"></td>
                 </tr>
                 <tr class="mb-2 row">
                     <td class="col-auto"><button class="btn btn-primary" @onclick="AddUser">Add User</button></td>
@@ -32,31 +32,32 @@
                 <tr class="mb-1 row">
                     <td class="col-sm-3 col-form-label">User</td>
                     <td class="col-sm-9">
-                        <EditForm Model="@user">
+                        <EditForm Model="@updateUser">
                             @if (userList.Any())
                             {
-                                <InputSelect Value="@user.UserId" DisplayName="@user.Name" ValueExpression="@(()=>user.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))"   class="form-control">                                                                                                                                                                 >
-                                    @foreach (var user in userList)
-                                    {
+                                <InputSelect id="UserNoSelect" Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
+                                <option value="0">----Select User Id----</option>
+                                @foreach (var user in userList)
+                                {
                                     <option value="@user.UserId">@user.Name</option>
-                                    }
-                                    
-                                </InputSelect>
+                                }
+
+                            </InputSelect>
                             }
                         </EditForm>
                     </td>
                 </tr>
                 <tr class="mb-1 row">
                     <td class="col-sm-3 col-form-label">Name</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Name"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Name"></td>
                 </tr>
                 <tr class="mb-1 row">
                     <td class="col-sm-3 col-form-label">Address</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Address"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Address"></td>
                 </tr>
                 <tr class="mb-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="user.Email"></td>
+                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Email"></td>
                 </tr>
                 <tr class="mb-1 row justify-content-center">
                     <td class="col-6"><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
@@ -108,22 +109,17 @@
 
     private List<User> userList = new();
 
-    private User user = new();
+    private User addUser = new();
 
-    private bool isDisable { get; set; } = true;
-
-    private void offDisable()
-    {
-        this.isDisable = false;
-    }
+    private User updateUser = new();
 
     private async Task AddUser()
     {
-        if (userAddress != null && userEmail != null && userName != null)
+        if (addUser.Name != null && addUser.Email != null && addUser.Address != null)
         {
-            await UserRepositoryAPI.AddUserAsync(new User { Name = userName, Email = userEmail, Address = userAddress });
+            await UserRepositoryAPI.AddUserAsync(addUser);
 
-            ClearFields();
+            addUser = new();
         }
     }
 
@@ -134,47 +130,31 @@
 
     private async Task UpdateUserModel(int value)
     {
-        user = userList.First(offset => offset.UserId == value);
-
-       // .WriteLine("testing 1234");
+        if (value > 0)
+        {
+            updateUser = userList.First(offset => offset.UserId == value);
+        }
     }
 
     private async Task UpdateUser()
     {
-        if (isIdExist(txtUserId))
-        {
+        await UserRepositoryAPI.UpdateUserAsync(updateUser);
 
-            await UserRepositoryAPI.UpdateUserAsync(user);
+        userList = (await UserRepositoryAPI.GetUsersAsync()).ToList();
 
-            userList = (await UserRepositoryAPI.GetUsersAsync()).ToList();
-
-            ClearFields();
-        }
+        ClearFields();
     }
 
     private async Task RemoveUser()
     {
-        if (isIdExist(txtUserId))
-        {
-            await UserRepositoryAPI.DeleteUserAsync(txtUserId);
+        await UserRepositoryAPI.DeleteUserAsync(updateUser.UserId);
 
-            ClearFields();
-        }
-    }
-
-    private bool isIdExist(int value)
-    {
-        if (userList.Any())
-        {
-            return userList.Any(user => user.UserId == value);
-        }
-
-        return false;
+        ClearFields();
     }
 
     private void ClearFields()
     {
-        userName = userEmail = userAddress = String.Empty;
+        updateUser = new();
     }
 
 
