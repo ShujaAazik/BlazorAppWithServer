@@ -3,68 +3,73 @@
 <table>
     <tr>
         <td class="col-6">
-            <table>
+            <EditForm Model="@addUser" OnValidSubmit="@AddUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <table>
                 <tr class="my-1 row">
                     <td class="col-auto"><h2>Create User</h2></td>
                 </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Name</td>
-                    <td class="col-sm-9"><input type="text" @bind="addUser.Name" class="form-control"></td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Name" class="form-control"/></td>
                 </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Address</td>
-                    <td class="col-sm-9"><input type="text" @bind="addUser.Address" class="form-control"></td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Address" class="form-control"/></td>
                 </tr>
                 <tr class="my-3 row">
                     <td class="col-sm-3 col-form-label">Email</td>
-                    <td class="col-sm-9"><input type="text" @bind="addUser.Email" class="form-control"></td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Email" class="form-control"/></td>
                 </tr>
                 <tr class="mb-2 row">
-                    <td class="col-auto"><button class="btn btn-primary" @onclick="AddUser">Add User</button></td>
+                    <td class="col-auto"><button class="btn btn-primary" >Add User</button></td>
                 </tr>
             </table>
+            </EditForm>
         </td>
         <td class="col-6">
-            <table>
-                <tr class="my-1 row">
-                    <td class="col-auto"><h2>Update User</h2></td>
-                </tr>
-                <tr class="mb-1 row">
-                    <td class="col-sm-3 col-form-label">User</td>
-                    <td class="col-sm-9">
-                        <EditForm Model="@updateUser">
-                            <DataAnnotationsValidator />
+            <EditForm Model="@updateUser" OnValidSubmit="@UpdateUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <table>
+                    <tr class="my-1 row">
+                        <td class="col-auto"><h2>Update User</h2></td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">User</td>
+                        <td class="col-sm-9">
                             @if (userList.Any())
                             {
                                 <InputSelect id="UserNoSelect" Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
-                                <option value="0">----Select User Id----</option>
-                                @foreach (var user in userList)
+                                    <option value="0">----Select User Id----</option>
+                                    @foreach (var user in userList)
                                 {
                                     <option value="@user.UserId">@user.Name</option>
                                 }
 
                             </InputSelect>
                             }
-                        </EditForm>
-                    </td>
-                </tr>
-                <tr class="mb-1 row">
-                    <td class="col-sm-3 col-form-label">Name</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Name"></td>
-                </tr>
-                <tr class="mb-1 row">
-                    <td class="col-sm-3 col-form-label">Address</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Address"></td>
-                </tr>
-                <tr class="mb-3 row">
-                    <td class="col-sm-3 col-form-label">Email</td>
-                    <td class="col-sm-9"><input type="text" class="form-control" @bind="updateUser.Email"></td>
-                </tr>
-                <tr class="mb-1 row justify-content-center">
-                    <td class="col-6"><button class="btn btn-primary" @onclick="UpdateUser">Update User</button></td>
-                    <td class="col-6"><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">Name</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Name"/> </td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">Address</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Address"/></td>
+                    </tr>
+                    <tr class="mb-3 row">
+                        <td class="col-sm-3 col-form-label">Email</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Email"/></td>
+                    </tr>
+                    <tr class="mb-1 row justify-content-center">
+                        <td class="col-6"><button class="btn btn-primary">Update User</button></td>
+                        <td class="col-6"><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
+                    </tr>
+                </table>
+            </EditForm>
         </td>
     </tr>
     <tr>
@@ -103,11 +108,6 @@
 
 
 @code {
-
-    private int txtUserId { get; set; }
-    private string userName { get; set; }
-    private string userAddress { get; set; }
-    private string userEmail { get; set; }
 
     private List<User> userList = new();
 
