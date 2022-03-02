@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UserManagementApi.Models;
 
@@ -10,9 +11,10 @@ using UserManagementApi.Models;
 namespace UserManagementApi.Migrations
 {
     [DbContext(typeof(DbConnect))]
-    partial class DbConnectModelSnapshot : ModelSnapshot
+    [Migration("20220302094125_AddContractConfigTable")]
+    partial class AddContractConfigTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +38,6 @@ namespace UserManagementApi.Migrations
                     b.Property<int>("ContractId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DataFormatId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -49,26 +48,7 @@ namespace UserManagementApi.Migrations
 
                     b.HasKey("ContractConfigId");
 
-                    b.HasIndex("DataFormatId");
-
                     b.ToTable("contractConfigs");
-                });
-
-            modelBuilder.Entity("UserManagementApi.Models.DataFormat", b =>
-                {
-                    b.Property<int>("DataFormatId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DataFormatId"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DataFormatId");
-
-                    b.ToTable("DataFormats");
                 });
 
             modelBuilder.Entity("UserManagementApi.Models.User", b =>
@@ -94,17 +74,6 @@ namespace UserManagementApi.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("UserManagementApi.Models.ContractConfig", b =>
-                {
-                    b.HasOne("UserManagementApi.Models.DataFormat", "DataFormat")
-                        .WithMany()
-                        .HasForeignKey("DataFormatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DataFormat");
                 });
 #pragma warning restore 612, 618
         }
