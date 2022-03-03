@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagement - FrontEnd", "UserManagement - FrontEnd\UserManagement - FrontEnd.csproj", "{B22DCD9F-457D-4985-B226-773A4761468F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagementApi", "UserManagementApi\UserManagementApi.csproj", "{A93422F8-8554-4098-A7FB-80BB2980F902}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementApi", "UserManagementApi\UserManagementApi.csproj", "{A93422F8-8554-4098-A7FB-80BB2980F902}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

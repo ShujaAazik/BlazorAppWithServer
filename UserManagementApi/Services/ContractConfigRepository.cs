@@ -40,13 +40,22 @@ namespace UserManagementApi.Services
 
         public async Task AddContractConfig(ContractConfig contractConfig)
         {
-            await _context.AddAsync(contractConfig);
-            _context.SaveChanges();
+            if (_context.DataFormats.Any(df=>df.DataFormatId == contractConfig.DataFormatId))
+            {
+                _context.Update(contractConfig);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                 _context.Add(contractConfig);
+                await _context.SaveChangesAsync();
+            }
+            
         }
 
         public async Task<IEnumerable<ContractConfig>> ReadContractConfigs()
         {
-            return await _context.contractConfigs.ToListAsync();
+            return await _context.contractConfigs.Include(x=>x.DataFormat).ToListAsync();
         }
 
         public async Task UpdateContractConfig(ContractConfig contractConfig)
