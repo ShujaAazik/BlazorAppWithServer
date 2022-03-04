@@ -23,7 +23,7 @@
                     <td class="col-sm-9"><InputText @bind-Value="addUser.Email" class="form-control"/></td>
                 </tr>
                 <tr class="mb-2 row">
-                    <td class="col-auto"><button class="btn btn-primary" >Add User</button></td>
+                    <td class="col-auto"><button class="btn btn-primary">Add User</button></td>
                 </tr>
             </table>
             </EditForm>
@@ -39,17 +39,14 @@
                     <tr class="mb-1 row">
                         <td class="col-sm-3 col-form-label">User</td>
                         <td class="col-sm-9">
-                            @if (userList.Any())
-                            {
-                                <InputSelect id="UserNoSelect" Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
+                            <InputSelect Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
                                     <option value="0">----Select User Id----</option>
                                     @foreach (var user in userList)
-                                {
-                                    <option value="@user.UserId">@user.Name</option>
-                                }
+                                    {
+                                        <option value="@user.UserId">@user.Name</option>
+                                    }
 
                             </InputSelect>
-                            }
                         </td>
                     </tr>
                     <tr class="mb-1 row">
@@ -103,8 +100,6 @@
         </td>
     </tr>
 </table>
-
-
 
 
 @code {
@@ -163,5 +158,9 @@
         updateUser = new();
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+    }
 
 }
