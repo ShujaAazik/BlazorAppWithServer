@@ -7,6 +7,7 @@ namespace UserManagement___FrontEnd
         public int ContractConfigId { get; set; }
 
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Seletc a Valid Data Type")]
         public int ContractId { get; set; }
 
         [Required]
@@ -19,9 +20,9 @@ namespace UserManagement___FrontEnd
         public string Description { get; set; }
 
         [Required]
+        [Range(1,int.MaxValue, ErrorMessage ="Seletc a Valid Data Type")]
         public int DataFormatId { get; set; }
 
-        [Required]
         public DataFormat DataFormat { get; set; }
     }
 }

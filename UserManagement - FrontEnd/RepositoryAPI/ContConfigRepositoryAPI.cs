@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -29,17 +30,17 @@ namespace UserManagement___FrontEnd
 
         public async static Task AddContConfigAsync(ContractConfiguration config)
         {
-            response = await client.PostAsync($"ContractConfig/{baseUrl}", new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
+            response = await client.PostAsync($"{baseUrl}ContractConfig", new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
         }
 
         public async static Task UpdateContConfigAsync(ContractConfiguration config)
         {
-            response = await client.PutAsync(Path.Combine(baseUrl, $"ContractConfig/{config.ContractConfigId}"), new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
+            response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
         }
 
         public async static Task DeleteContConfigAsync(int id)
         {
-            response = await client.DeleteAsync(Path.Combine(baseUrl, $"ContractConfig/{id}"));
+            response = await client.DeleteAsync($"{baseUrl}ContractConfig/{id}");
         }
     }
 }
