@@ -1,181 +1,35 @@
 ﻿@page "/ContractConfig"
+@using UserManagement___FrontEnd.Components
 
 <div class="row">
     <div class="col-5 mx-auto">
-        <EditForm Model="@contractConfigDTO.addConfig" OnValidSubmit="@AddContractConfig">
-            <DataAnnotationsValidator />
-            <h3>Add Configuration</h3>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Contract ID</label>
-                <InputSelect @bind-Value="contractConfigDTO.addConfig.ContractId" class="col-sm-5 form-control">
-                    <option value="0">----Select Contract----</option>
-                    @foreach (var contract in contractConfigDTO.contracts)
-                    {
-                        <option value="@contract.ContractId">@contract.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(()=>contractConfigDTO.addConfig.ContractId)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Code</label>
-                <InputText @bind-Value="contractConfigDTO.addConfig.Code" class="col-sm-5 form-control" />
-                <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Code)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Type</label>
-                <InputSelect Value="@contractConfigDTO.addConfig.DataFormatId" ValueExpression="@(() => contractConfigDTO.addConfig.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
-                    <option value="0">----Select User Id----</option>
-                    @foreach (var type in contractConfigDTO.dataFormats)
-                    {
-                        <option value="@type.DataFormatId">@type.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(()=>contractConfigDTO.addConfig.DataFormatId)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                @if (contractConfigDTO.addConfig.DataFormatId > 0)
-                {
-                    switch (contractConfigDTO.addConfig.DataFormat.Name)
-                    {
-                        case "String":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputText @bind-Value="contractConfigDTO.addConfig.Value" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Value)" class="col-4" />
-                            break;
-                        case "CodeWord":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputText @bind-Value="contractConfigDTO.addConfig.Value" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Value)" class="col-4" />
-                            break;
-                        case "Number":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputNumber @bind-Value="contactId" onchange="@UpdateTypeModel(contactId,true)" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Value)" class="col-4" />
-                            break;
-                        case "JSON":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputTextArea @bind-Value="contractConfigDTO.addConfig.Value" class="col-sm-5 form-control" rows="3"/>
-                            <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Value)" class="col-4" />
-                            break;
-                        case "SQLQuery":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputTextArea @bind-Value="contractConfigDTO.addConfig.Value" class="col-sm-5 form-control" rows="3"/>
-                            <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Value)" class="col-4" />
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Description</label>
-                <InputText @bind-Value="contractConfigDTO.addConfig.Description" class="col-sm-5 form-control" />
-                <ValidationMessage For="@(()=>contractConfigDTO.addConfig.Description)" class="col-4" />
-            </div>
-            <div class="row py-lg-3 my-4"></div>
-            <div class="row mx-auto">
-                <div class="col-5"><button class="btn btn-primary px-5">Add Config</button></div>
-
-            </div>
-        </EditForm>
+        <AddConfiguration ConfigVM="@contractConfigDTO" Add="@AddContractConfig"/>
     </div>
     <div class="col-5 mx-auto">
-        <EditForm Model="@contractConfigDTO.updateConfig" OnValidSubmit="@UpdateContractConfig">
-            <DataAnnotationsValidator />
-            <h3>Update Configuration</h3>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Contact Config</label>
-                <InputSelect Value="@contractConfigDTO.updateConfig.ContractConfigId" ValueExpression="@(()=>contractConfigDTO.updateConfig.ContractConfigId)" ValueChanged="@((int value)=>UpdateContractConfigModel(value))" class="col-sm-5 form-control">
-                    <option value="0">-----Select Contact-----</option>
-                    @foreach (var contract in contractConfigDTO.configList)
-                    {
-                        <option value="@contract.ContractConfigId">@contract.Code</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Contract ID</label>
-                <InputSelect @bind-Value="contractConfigDTO.updateConfig.ContractId" class="col-sm-5 form-control">
-                    <option value="0">----Select Contract----</option>
-                    @foreach (var contract in contractConfigDTO.contracts)
-                    {
-                        <option value="@contract.ContractId">@contract.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.ContractId)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Code</label>
-                <InputText @bind-Value="contractConfigDTO.updateConfig.Code" class="col-sm-5 form-control" />
-                <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Code)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Type</label>
-                <InputSelect Value="contractConfigDTO.updateConfig.DataFormatId" ValueExpression="(()=> contractConfigDTO.updateConfig.DataFormatId)" ValueChanged="(int value) => UpdateDataFormatModel(value)" class="col-sm-5 form-control">
-                    <option value="0">----Select User Id----</option>
-                    @foreach (var type in contractConfigDTO.dataFormats)
-                    {
-                        <option value="@type.DataFormatId">@type.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.DataFormatId)" class="col-4" />
-            </div>
-            <div class="row p-3">
-                @if (contractConfigDTO.updateConfig.DataFormatId > 0)
-                {
-                    switch (contractConfigDTO.updateConfig.DataFormat.Name)
-                    {
-                        case "String":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputText @bind-Value="contractConfigDTO.updateConfig.Value" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Value)" class="col-4" />
-                            break;
-                        case "CodeWord":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputText @bind-Value="contractConfigDTO.updateConfig.Value" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Value)" class="col-4" />
-                            break;
-                        case "Number":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputNumber @bind-Value="contactId" onchange="@UpdateTypeModel(contactId,false)" class="col-sm-5 form-control" />
-                            <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Value)" class="col-4" />
-                            break;
-                        case "JSON":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputTextArea @bind-Value="contractConfigDTO.updateConfig.Value" class="col-sm-5 form-control" rows="3"/>
-                            <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Value)" class="col-4" />
-                            break;
-                        case "SQLQuery":
-                            <label class="col-sm-3 col-form-label">Value</label>
-                            <InputTextArea @bind-Value="contractConfigDTO.updateConfig.Value" class="col-sm-5 form-control" rows="3"/>
-                            <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Value)" class="col-4" />
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            </div>
-            <div class="row p-3">
-                <label class="col-sm-3 col-form-label">Description</label>
-                <InputText @bind-Value="contractConfigDTO.updateConfig.Description" class="col-sm-5 form-control" />
-                <ValidationMessage For="@(()=>contractConfigDTO.updateConfig.Description)" class="col-4" />
-            </div>
-            
-            <div class="row p-3 mx-auto">
-                <div class="col-5"><button class="btn btn-primary px-5">Update Config</button></div>
-                <div class="col-4"><button class="btn btn-primary px-3" @onclick="RemoveContractConfig">Remove Config</button></div>
-            </div>
-        </EditForm>
+        <UpdateConfiguration ConfigVM="@contractConfigDTO" Update="@UpdateContractConfig"/>
     </div>
 </div>
 <div class="row m-3 col-6">
     @if (contractConfigDTO.configList.Any())
     {
         <table class="table table-md table-striped table-bordered">
-            <tr><th>Id</th><th>ContractId</th><th>Code</th><th>Value</th><th>Description</th><th>Type</th></tr>
+            <tr>
+                <th>Id</th>
+                <th>ContractId</th>
+                <th>Code</th>
+                <th>Value</th>
+                <th>Description</th>
+                <th>Type</th>
+            </tr>
             @foreach (var config in contractConfigDTO.configList)
             {
-                <tr><td>@config.ContractConfigId</td><td>@contractConfigDTO.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td><td>@config.Code</td><td>@config.Value</td><td>@config.Description</td><td>@config.DataFormat.Name</td></tr>
+                <tr>
+                    <td>@config.ContractConfigId</td>
+                    <td>@contractConfigDTO.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
+                    <td>@config.Code</td><td>@config.Value</td><td>@config.Description</td>
+                    <td>@config.DataFormat.Name</td><td><button class="btn btn-primary"><i class="oi oi-pencil"/></button></td>
+                    <td><button @onclick="()=>RemoveContractConfig(config.ContractConfigId)" class="btn btn-primary"><i class="oi oi-trash"/></button></td>
+                </tr>
             }
         </table>
     }
@@ -209,36 +63,6 @@
         contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
     }
 
-    protected int UpdateTypeModel(int value, bool isNewConfig)
-    {
-        if (isNewConfig)
-        {
-            contractConfigDTO.addConfig.Value = value.ToString();
-        }
-        else
-        {
-            contractConfigDTO.updateConfig.Value = value.ToString();
-        }
-        return value;
-    }
-
-    protected void UpdateContractConfigModel(int value)
-    {
-        contractConfigDTO.updateConfig = contractConfigDTO.configList.First(offset => offset.ContractConfigId == value);
-    }
-
-    protected void UpdateDataFormatModel(int value)
-    {
-        contractConfigDTO.updateConfig.DataFormatId = value;
-        contractConfigDTO.updateConfig.DataFormat = contractConfigDTO.dataFormats.First(offset => offset.DataFormatId == value);
-    }
-
-    protected void AddDataFormatModel(int value)
-    {
-        contractConfigDTO.addConfig.DataFormatId = value;
-        contractConfigDTO.addConfig.DataFormat = contractConfigDTO.dataFormats.First(offset => offset.DataFormatId == value);
-    }
-
     protected async Task UpdateContractConfig()
     {
 
@@ -249,13 +73,12 @@
         contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
     }
 
-    protected async Task RemoveContractConfig()
+    protected async Task RemoveContractConfig(int contractConfigId)
     {
 
-        await ContConfigRepositoryAPI.DeleteContConfigAsync(contractConfigDTO.updateConfig.ContractConfigId);
-
-        contractConfigDTO.updateConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.updateConfig);
+        await ContConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
 
         contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+
     }
 }

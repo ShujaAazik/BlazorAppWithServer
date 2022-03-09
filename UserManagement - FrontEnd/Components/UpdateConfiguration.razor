@@ -1,0 +1,132 @@
+﻿<EditForm Model="@ConfigVM.updateConfig" OnValidSubmit="@Update">
+    <DataAnnotationsValidator />
+    <h3>Update Configuration</h3>
+    <div class="row p-3">
+        <label class="col-sm-3 col-form-label">Contact Config</label>
+        <InputSelect Value="@ConfigVM.updateConfig.ContractConfigId" ValueExpression="@(()=>ConfigVM.updateConfig.ContractConfigId)" ValueChanged="@((int value)=>UpdateContractConfigModel(value))" class="col-sm-5 form-control">
+            <option value="0">-----Select Contact-----</option>
+            @foreach (var contract in ConfigVM.configList)
+            {
+                <option value="@contract.ContractConfigId">@contract.Code</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="row p-3">
+        <label class="col-sm-3 col-form-label">Contract ID</label>
+        <InputSelect @bind-Value="ConfigVM.updateConfig.ContractId" class="col-sm-5 form-control">
+            <option value="0">----Select Contract----</option>
+            @foreach (var contract in ConfigVM.contracts)
+            {
+                <option value="@contract.ContractId">@contract.Name</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(()=>ConfigVM.updateConfig.ContractId)" class="col-4" />
+    </div>
+    <div class="row p-3">
+        <label class="col-sm-3 col-form-label">Code</label>
+        <InputText @bind-Value="ConfigVM.updateConfig.Code" class="col-sm-5 form-control" />
+        <ValidationMessage For="@(()=>ConfigVM.updateConfig.Code)" class="col-4" />
+    </div>
+    <div class="row p-3">
+        <label class="col-sm-3 col-form-label">Type</label>
+        <InputSelect Value="ConfigVM.updateConfig.DataFormatId" ValueExpression="(()=> ConfigVM.updateConfig.DataFormatId)" ValueChanged="(int value) => UpdateDataFormatModel(value)" class="col-sm-5 form-control">
+            <option value="0">----Select User Id----</option>
+            @foreach (var type in ConfigVM.dataFormats)
+            {
+                <option value="@type.DataFormatId">@type.Name</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(()=>ConfigVM.updateConfig.DataFormatId)" class="col-4" />
+    </div>
+    <div class="row p-3">
+        @if (ConfigVM.updateConfig.DataFormatId > 0)
+        {
+            switch (ConfigVM.updateConfig.DataFormat.Name)
+            {
+                case "String":
+                    <label class="col-sm-3 col-form-label">Value</label>
+                    <InputText @bind-Value="ConfigVM.updateConfig.Value" class="col-sm-5 form-control" />
+                    <ValidationMessage For="@(()=>ConfigVM.updateConfig.Value)" class="col-4" />
+                    break;
+                case "CodeWord":
+                    <label class="col-sm-3 col-form-label">Value</label>
+                    <InputText @bind-Value="ConfigVM.updateConfig.Value" class="col-sm-5 form-control" />
+                    <ValidationMessage For="@(()=>ConfigVM.updateConfig.Value)" class="col-4" />
+                    break;
+                case "Number":
+                    <label class="col-sm-3 col-form-label">Value</label>
+                    <InputNumber @bind-Value="contactId" onchange="@UpdateTypeModel(contactId)" class="col-sm-5 form-control" />
+                    <ValidationMessage For="@(()=>ConfigVM.updateConfig.Value)" class="col-4" />
+                    break;
+                case "JSON":
+                    <label class="col-sm-3 col-form-label">Value</label>
+                    <InputTextArea @bind-Value="ConfigVM.updateConfig.Value" class="col-sm-5 form-control" rows="3" />
+                    <ValidationMessage For="@(()=>ConfigVM.updateConfig.Value)" class="col-4" />
+                    break;
+                case "SQLQuery":
+                    <label class="col-sm-3 col-form-label">Value</label>
+                    <InputTextArea @bind-Value="ConfigVM.updateConfig.Value" class="col-sm-5 form-control" rows="3" />
+                    <ValidationMessage For="@(()=>ConfigVM.updateConfig.Value)" class="col-4" />
+                    break;
+                default:
+                    break;
+            }
+        }
+    </div>
+    <div class="row p-3">
+        <label class="col-sm-3 col-form-label">Description</label>
+        <InputText @bind-Value="ConfigVM.updateConfig.Description" class="col-sm-5 form-control" />
+        <ValidationMessage For="@(()=>ConfigVM.updateConfig.Description)" class="col-4" />
+    </div>
+
+    <div class="row p-3 mx-auto">
+        <div class="col-5"><button class="btn btn-primary px-5">Update Config</button></div>
+        <div class="col-4"><button class="btn btn-primary px-3" @onclick="RemoveContractConfig">Remove Config</button></div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public ContractConfigVM ConfigVM { get; set; }
+
+    [Parameter]
+    public EventCallback Update { get; set; }
+
+    int contactId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ConfigVM.dataFormats = (await ContConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+
+        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+
+        ConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
+    }
+
+    protected void UpdateContractConfigModel(int value)
+    {
+        ConfigVM.updateConfig = ConfigVM.configList.First(offset => offset.ContractConfigId == value);
+    }
+
+    protected void UpdateDataFormatModel(int value)
+    {
+        ConfigVM.updateConfig.DataFormatId = value;
+        ConfigVM.updateConfig.DataFormat = ConfigVM.dataFormats.First(offset => offset.DataFormatId == value);
+    }
+
+    protected int UpdateTypeModel(int value)
+    {
+        ConfigVM.updateConfig.Value = String.Format("{0}",value);
+        return value;
+    }
+
+    protected async Task RemoveContractConfig()
+    {
+
+        await ContConfigRepositoryAPI.DeleteContConfigAsync(ConfigVM.updateConfig.ContractConfigId);
+
+        ConfigVM.updateConfig = ConfigVM.RefreshConfig(ConfigVM.updateConfig);
+
+        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+    }
+}
