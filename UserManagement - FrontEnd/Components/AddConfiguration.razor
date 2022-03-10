@@ -1,62 +1,63 @@
-﻿<EditForm Model="@ConfigVM.addConfig" OnValidSubmit="@Add">
+﻿@page "/Addconfig"
+<EditForm Model="@ConfigVM.config" OnValidSubmit="@AddContractConfig">
     <DataAnnotationsValidator />
     <h3>Add Configuration</h3>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Contract ID</label>
-        <InputSelect @bind-Value="ConfigVM.addConfig.ContractId" class="col-sm-5 form-control">
+        <InputSelect @bind-Value="ConfigVM.config.ContractId" class="col-sm-5 form-control">
             <option value="0">----Select Contract----</option>
             @foreach (var contract in ConfigVM.contracts)
             {
                 <option value="@contract.ContractId">@contract.Name</option>
             }
         </InputSelect>
-        <ValidationMessage For="@(()=>ConfigVM.addConfig.ContractId)" class="col-4" />
+        <ValidationMessage For="@(()=>ConfigVM.config.ContractId)" class="col-4" />
     </div>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Code</label>
-        <InputText @bind-Value="ConfigVM.addConfig.Code" class="col-sm-5 form-control" />
-        <ValidationMessage For="@(()=>ConfigVM.addConfig.Code)" class="col-4" />
+        <InputText @bind-Value="ConfigVM.config.Code" class="col-sm-5 form-control" />
+        <ValidationMessage For="@(()=>ConfigVM.config.Code)" class="col-4" />
     </div>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Type</label>
-        <InputSelect Value="@ConfigVM.addConfig.DataFormatId" ValueExpression="@(() => ConfigVM.addConfig.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
+        <InputSelect Value="@ConfigVM.config.DataFormatId" ValueExpression="@(() => ConfigVM.config.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
             <option value="0">----Select User Id----</option>
             @foreach (var type in ConfigVM.dataFormats)
             {
                 <option value="@type.DataFormatId">@type.Name</option>
             }
         </InputSelect>
-        <ValidationMessage For="@(()=>ConfigVM.addConfig.DataFormatId)" class="col-4" />
+        <ValidationMessage For="@(()=>ConfigVM.config.DataFormatId)" class="col-4" />
     </div>
     <div class="row p-3">
-        @if (ConfigVM.addConfig.DataFormatId > 0)
+        @if (ConfigVM.config.DataFormatId > 0)
         {
-            switch (ConfigVM.addConfig.DataFormat.Name)
+            switch (ConfigVM.config.DataFormat.Name)
             {
                 case "String":
                     <label class="col-sm-3 col-form-label">Value</label>
-                    <InputText @bind-Value="ConfigVM.addConfig.Value" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.addConfig.Value)" class="col-4" />
+                    <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
+                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 case "CodeWord":
                     <label class="col-sm-3 col-form-label">Value</label>
-                    <InputText @bind-Value="ConfigVM.addConfig.Value" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.addConfig.Value)" class="col-4" />
+                    <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
+                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 case "Number":
                     <label class="col-sm-3 col-form-label">Value</label>
                     <InputNumber @bind-Value="contactId" onchange="@AddTypeModel(contactId)" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.addConfig.Value)" class="col-4" />
+                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 case "JSON":
                     <label class="col-sm-3 col-form-label">Value</label>
-                    <InputTextArea @bind-Value="ConfigVM.addConfig.Value" class="col-sm-5 form-control" rows="3" />
-                    <ValidationMessage For="@(()=>ConfigVM.addConfig.Value)" class="col-4" />
+                    <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
+                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 case "SQLQuery":
                     <label class="col-sm-3 col-form-label">Value</label>
-                    <InputTextArea @bind-Value="ConfigVM.addConfig.Value" class="col-sm-5 form-control" rows="3" />
-                    <ValidationMessage For="@(()=>ConfigVM.addConfig.Value)" class="col-4" />
+                    <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
+                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 default:
                     break;
@@ -65,8 +66,8 @@
     </div>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Description</label>
-        <InputText @bind-Value="ConfigVM.addConfig.Description" class="col-sm-5 form-control" />
-        <ValidationMessage For="@(()=>ConfigVM.addConfig.Description)" class="col-4" />
+        <InputText @bind-Value="ConfigVM.config.Description" class="col-sm-5 form-control" />
+        <ValidationMessage For="@(()=>ConfigVM.config.Description)" class="col-4" />
     </div>
     <div class="row py-lg-3 my-4"></div>
     <div class="row mx-auto">
@@ -77,11 +78,7 @@
 
 @code {
 
-    [Parameter]
-    public ContractConfigVM ConfigVM { get; set; }
-
-    [Parameter]
-    public EventCallback Add { get; set; }
+    public ContractConfigVM ConfigVM = new();
 
     int contactId;
 
@@ -96,13 +93,22 @@
 
     protected int AddTypeModel(int value)
     {
-        ConfigVM.addConfig.Value = String.Format("{0}",value);
+        ConfigVM.config.Value = String.Format("{0}",value);
         return value;
     }
 
     protected void AddDataFormatModel(int value)
     {
-        ConfigVM.addConfig.DataFormatId = value;
-        ConfigVM.addConfig.DataFormat = ConfigVM.dataFormats.First(offset => offset.DataFormatId == value);
+        ConfigVM.config.DataFormatId = value;
+        ConfigVM.config.DataFormat = ConfigVM.dataFormats.First(offset => offset.DataFormatId == value);
+    }
+
+    protected async Task AddContractConfig()
+    {
+        await ContConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
+
+        ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
+
+        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
     }
 }

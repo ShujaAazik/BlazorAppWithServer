@@ -1,17 +1,10 @@
-﻿@page "/UpdateConfig"
-<EditForm Model="@ConfigVM.config" OnValidSubmit="@UpdateContractConfig">
+﻿@page "/AddconfigForm"
+@page "/UpdateConfig/{ContractConfigId:int}"
+@inject NavigationManager navigationManager
+
+<EditForm Model="@ConfigVM.config" OnValidSubmit="@SaveContractConfig">
     <DataAnnotationsValidator />
-    <h3>Update Configuration</h3>
-    <div class="row p-3">
-        <label class="col-sm-3 col-form-label">Contact Config</label>
-        <InputSelect Value="@ConfigVM.config.ContractConfigId" ValueExpression="@(()=>ConfigVM.config.ContractConfigId)" ValueChanged="@((int value)=>UpdateContractConfigModel(value))" class="col-sm-5 form-control">
-            <option value="0">-----Select Contact-----</option>
-            @foreach (var contract in ConfigVM.configList)
-            {
-                <option value="@contract.ContractConfigId">@contract.Code</option>
-            }
-        </InputSelect>
-    </div>
+    <h3>@Heading</h3>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Contract ID</label>
         <InputSelect @bind-Value="ConfigVM.config.ContractId" class="col-sm-5 form-control">
@@ -30,7 +23,7 @@
     </div>
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Type</label>
-        <InputSelect Value="ConfigVM.config.DataFormatId" ValueExpression="(()=> ConfigVM.config.DataFormatId)" ValueChanged="(int value) => UpdateDataFormatModel(value)" class="col-sm-5 form-control">
+        <InputSelect Value="@ConfigVM.config.DataFormatId" ValueExpression="@(() => ConfigVM.config.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
             <option value="0">----Select User Id----</option>
             @foreach (var type in ConfigVM.dataFormats)
             {
@@ -56,7 +49,7 @@
                     break;
                 case "Number":
                     <label class="col-sm-3 col-form-label">Value</label>
-                    <InputNumber @bind-Value="contactId" onchange="@UpdateTypeModel(contactId)" class="col-sm-5 form-control" />
+                    <InputNumber @bind-Value="contactId" onchange="@AddTypeModel(contactId)" class="col-sm-5 form-control" />
                     <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
                     break;
                 case "JSON":
@@ -79,10 +72,10 @@
         <InputText @bind-Value="ConfigVM.config.Description" class="col-sm-5 form-control" />
         <ValidationMessage For="@(()=>ConfigVM.config.Description)" class="col-4" />
     </div>
-
-    <div class="row p-3 mx-auto">
-        <div class="col-5"><button class="btn btn-primary px-5">Update Config</button></div>
-        <div class="col-4"><button class="btn btn-primary px-3" @onclick="RemoveContractConfig">Remove Config</button></div>
+    <div class="row py-lg-3 my-4"></div>
+    <div class="row mx-auto">
+        <div class="col-5"><button class="btn btn-primary px-5">Save Config</button></div>
+        <td><button @onclick="@(()=>navigationManager.NavigateTo("ContractConfig"))" class="btn btn-primary">Go Back</button></td>
     </div>
 </EditForm>
 
@@ -90,7 +83,12 @@
 
     public ContractConfigVM ConfigVM = new();
 
+    [Parameter]
+    public int contractConfigId { get; set; }
+
     int contactId;
+
+    string Heading = "Add Configuration";
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,40 +99,48 @@
         ConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
 
-    protected void UpdateContractConfigModel(int value)
+    protected override void OnParametersSet()
     {
-        ConfigVM.config = ConfigVM.configList.First(offset => offset.ContractConfigId == value);
+        UpdateContractConfigModel();
     }
 
-    protected void UpdateDataFormatModel(int value)
+    protected int AddTypeModel(int value)
+    {
+        ConfigVM.config.Value = String.Format("{0}", value);
+        return value;
+    }
+
+    protected void UpdateContractConfigModel()
+    {
+        if (contractConfigId > 0)
+        {
+            Heading = "Update Configuration";
+            ConfigVM.config = ConfigVM.configList.First(offset => offset.ContractConfigId == contractConfigId);
+        }
+    }
+
+    protected void AddDataFormatModel(int value)
     {
         ConfigVM.config.DataFormatId = value;
         ConfigVM.config.DataFormat = ConfigVM.dataFormats.First(offset => offset.DataFormatId == value);
     }
 
-    protected int UpdateTypeModel(int value)
-    {
-        ConfigVM.config.Value = String.Format("{0}",value);
-        return value;
-    }
-
-    protected async Task UpdateContractConfig()
+    protected async Task SaveContractConfig()
     {
 
-        await ContConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
+        if (contractConfigId > 0)
+        {
+            await ContConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
+        }
+        else
+        {
+            await ContConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
+        }
 
         ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
 
         ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
-    }
 
-    protected async Task RemoveContractConfig()
-    {
-
-        await ContConfigRepositoryAPI.DeleteContConfigAsync(ConfigVM.config.ContractConfigId);
-
-        ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
-
-        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        navigationManager.NavigateTo("ContractConfig");
     }
 }

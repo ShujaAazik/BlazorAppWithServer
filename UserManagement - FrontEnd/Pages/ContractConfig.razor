@@ -1,6 +1,9 @@
 ﻿@page "/ContractConfig"
 @using UserManagement___FrontEnd.Components
+@inject NavigationManager navigationManager
 
+
+@*
 <div class="row">
     <div class="col-5 mx-auto">
         <AddConfiguration ConfigVM="@contractConfigDTO" Add="@AddContractConfig"/>
@@ -8,7 +11,17 @@
     <div class="col-5 mx-auto">
         <UpdateConfiguration ConfigVM="@contractConfigDTO" Update="@UpdateContractConfig"/>
     </div>
+</div>*@
+
+<div class="row m-3 col-auto">
+    <div class="col-3">
+        <button @onclick="@(() => navigationManager.NavigateTo("AddconfigForm"))" class="btn btn-primary btn-circle"><i class="oi oi-plus"/></button>
+    </div>
+    <div class="col-9">
+        <input type="text" class="form-control-lg"/>
+    </div>
 </div>
+
 <div class="row m-3 col-6">
     @if (contractConfigDTO.configList.Any())
     {
@@ -26,9 +39,12 @@
                 <tr>
                     <td>@config.ContractConfigId</td>
                     <td>@contractConfigDTO.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
-                    <td>@config.Code</td><td>@config.Value</td><td>@config.Description</td>
-                    <td>@config.DataFormat.Name</td><td><button class="btn btn-primary"><i class="oi oi-pencil"/></button></td>
-                    <td><button @onclick="()=>RemoveContractConfig(config.ContractConfigId)" class="btn btn-primary"><i class="oi oi-trash"/></button></td>
+                    <td>@config.Code</td>
+                    <td>@config.Value</td>
+                    <td>@config.Description</td>
+                    <td>@config.DataFormat.Name</td>
+                    <td><button @onclick="@(()=>navigationManager.NavigateTo($"UpdateConfig/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-pencil"/></button></td>
+                    <td><button @onclick="@(()=>RemoveContractConfig(config.ContractConfigId))" class="btn btn-primary"><i class="oi oi-trash"/></button></td>
                 </tr>
             }
         </table>
@@ -43,6 +59,8 @@
 
     ContractConfigVM contractConfigDTO = new();
 
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
     int contactId;
 
     protected override async Task OnInitializedAsync()
@@ -54,24 +72,26 @@
         contractConfigDTO.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
 
-    protected async Task AddContractConfig()
-    {
-        await ContConfigRepositoryAPI.AddContConfigAsync(contractConfigDTO.addConfig);
+    //protected async Task AddContractConfig()
+    //{
+    //    await ContConfigRepositoryAPI.AddContConfigAsync(contractConfigDTO.addConfig);
 
-        contractConfigDTO.addConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.addConfig);
+    //    contractConfigDTO.addConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.addConfig);
 
-        contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
-    }
+    //    contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+    //}
 
-    protected async Task UpdateContractConfig()
-    {
+    //protected async Task UpdateContractConfig()
+    //{
 
-        await ContConfigRepositoryAPI.UpdateContConfigAsync(contractConfigDTO.updateConfig);
+    //    await ContConfigRepositoryAPI.UpdateContConfigAsync(contractConfigDTO.updateConfig);
 
-        contractConfigDTO.updateConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.updateConfig);
+    //    contractConfigDTO.updateConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.updateConfig);
 
-        contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
-    }
+    //    contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+    //}
+
+
 
     protected async Task RemoveContractConfig(int contractConfigId)
     {

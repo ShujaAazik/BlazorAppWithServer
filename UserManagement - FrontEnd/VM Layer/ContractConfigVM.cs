@@ -4,9 +4,9 @@ namespace UserManagement___FrontEnd
 {
     public class ContractConfigVM
     {
-        public ContractConfiguration addConfig = new();
+        public ContractConfiguration config = new();
 
-        public ContractConfiguration updateConfig = new();
+        //public ContractConfiguration updateConfig = new();
 
         public List<ContractConfiguration> configList = new();
 
