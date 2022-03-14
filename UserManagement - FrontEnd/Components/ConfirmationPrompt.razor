@@ -1,5 +1,5 @@
-﻿@page "/ConfirmationPrompt"
-@inject IModalService ModalService
+﻿@page "/ConfirmationPrompt/{ContractConfigId:int}"
+@inject NavigationManager navigationManager
 
 <div>
     <p>Are you sure you want to delete the record?</p>
@@ -10,20 +10,15 @@
 
 @code {
 
-    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+    [Parameter]
+    public int contractConfigId { get; set; }
 
-    async Task Yes()
+    protected async Task Yes()
     {
-        var options = new ModalOptions { Animation = new ModalAnimation(ModalAnimationType.FadeInOut, 5) };
+        await ContConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
 
-        var confirmationModal = ModalService.Show<Confirm>("Second Modal",options);
-        var result = await confirmationModal.Result;
-
-        if (result.Cancelled)
-            return;
-
-        await BlazoredModal.CloseAsync();
+        navigationManager.NavigateTo("ContractConfig");
     }
 
-    async Task No() => await BlazoredModal.CancelAsync();
+    protected void No() => navigationManager.NavigateTo("ContractConfig");
 }

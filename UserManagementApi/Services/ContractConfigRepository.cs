@@ -55,7 +55,10 @@ namespace UserManagementApi.Services
 
         public async Task<IEnumerable<ContractConfig>> ReadContractConfigs()
         {
-            return await _context.contractConfigs.Include(x=>x.DataFormat).ToListAsync();
+            return await _context.contractConfigs
+                .Include(x=>x.DataFormat)
+                //.Take(3)
+                .ToListAsync();
         }
 
         public async Task UpdateContractConfig(ContractConfig contractConfig)

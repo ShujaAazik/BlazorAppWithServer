@@ -6,8 +6,6 @@ namespace UserManagement___FrontEnd
     {
         public ContractConfiguration config = new();
 
-        //public ContractConfiguration updateConfig = new();
-
         public List<ContractConfiguration> configList = new();
 
         public List<DataFormat> dataFormats = new();

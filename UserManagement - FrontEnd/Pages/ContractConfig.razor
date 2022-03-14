@@ -2,49 +2,50 @@
 @using UserManagement___FrontEnd.Components
 @inject NavigationManager navigationManager
 
-
-@*
-<div class="row">
-    <div class="col-5 mx-auto">
-        <AddConfiguration ConfigVM="@contractConfigDTO" Add="@AddContractConfig"/>
-    </div>
-    <div class="col-5 mx-auto">
-        <UpdateConfiguration ConfigVM="@contractConfigDTO" Update="@UpdateContractConfig"/>
-    </div>
-</div>*@
-
 <div class="row m-3 col-auto">
-    <div class="col-3">
-        <button @onclick="@(() => navigationManager.NavigateTo("AddconfigForm"))" class="btn btn-primary btn-circle"><i class="oi oi-plus"/></button>
-    </div>
-    <div class="col-9">
-        <input type="text" class="form-control-lg"/>
-    </div>
+    <div class="form-group">
+    <select @bind="config.ContractId" class="form-control-sm">
+        <option value="0">----Select Contract----</option>
+        @foreach (var contract in contractConfigVM.contracts)
+        {
+            <option value="@contract.ContractId">@contract.Name</option>
+        }
+    </select>
+    <input type="text" @bind="config.Code" placeholder="Search Code" class="form-control-sm" />
+    <input type="text" @bind="config.Description" placeholder="Search Description" class="form-control-sm" />
+    <select @bind="config.DataFormatId" class="form-control-sm">
+        <option value="0">----Select User Id----</option>
+        @foreach (var type in contractConfigVM.dataFormats)
+        {
+            <option value="@type.DataFormatId">@type.Name</option>
+        }
+    </select>
+    <button @onclick="@SearchText" class="btn btn-primary">Search</button></div>
 </div>
 
 <div class="row m-3 col-6">
-    @if (contractConfigDTO.configList.Any())
+    @if (contractConfigVM.configList.Any())
     {
         <table class="table table-md table-striped table-bordered">
             <tr>
                 <th>Id</th>
-                <th>ContractId</th>
+                <th>Contract</th>
                 <th>Code</th>
                 <th>Value</th>
                 <th>Description</th>
                 <th>Type</th>
             </tr>
-            @foreach (var config in contractConfigDTO.configList)
+            @foreach (var config in contractConfigVM.configList)
             {
                 <tr>
                     <td>@config.ContractConfigId</td>
-                    <td>@contractConfigDTO.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
+                    <td>@contractConfigVM.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
                     <td>@config.Code</td>
                     <td>@config.Value</td>
                     <td>@config.Description</td>
                     <td>@config.DataFormat.Name</td>
-                    <td><button @onclick="@(()=>navigationManager.NavigateTo($"UpdateConfig/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-pencil"/></button></td>
-                    <td><button @onclick="@(()=>RemoveContractConfig(config.ContractConfigId))" class="btn btn-primary"><i class="oi oi-trash"/></button></td>
+                    <td><button @onclick="@(()=>navigationManager.NavigateTo($"UpdateConfig/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-pencil" /></button></td>
+                    <td><button @onclick="@(()=>navigationManager.NavigateTo($"ConfirmationPrompt/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-trash" /></button></td>
                 </tr>
             }
         </table>
@@ -55,50 +56,72 @@
     }
 </div>
 
+<div class="row m-3 col-6">
+    <div>
+        <button @onclick="@(() => navigationManager.NavigateTo("AddconfigForm"))" class="btn btn-primary btn-circle"><i class="oi oi-plus" /></button>
+    </div>
+</div>
+
 @code {
 
-    ContractConfigVM contractConfigDTO = new();
+    ContractConfigVM contractConfigVM = new();
 
-    [CascadingParameter] public IModalService Modal { get; set; } = default!;
-
-    int contactId;
+    ContractConfiguration config = new();
 
     protected override async Task OnInitializedAsync()
     {
-        contractConfigDTO.dataFormats = (await ContConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+        contractConfigVM.dataFormats = (await ContConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
 
-        contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        contractConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
 
-        contractConfigDTO.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
+        contractConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
 
-    //protected async Task AddContractConfig()
-    //{
-    //    await ContConfigRepositoryAPI.AddContConfigAsync(contractConfigDTO.addConfig);
-
-    //    contractConfigDTO.addConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.addConfig);
-
-    //    contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
-    //}
-
-    //protected async Task UpdateContractConfig()
-    //{
-
-    //    await ContConfigRepositoryAPI.UpdateContConfigAsync(contractConfigDTO.updateConfig);
-
-    //    contractConfigDTO.updateConfig = contractConfigDTO.RefreshConfig(contractConfigDTO.updateConfig);
-
-    //    contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
-    //}
-
-
-
-    protected async Task RemoveContractConfig(int contractConfigId)
+    protected async Task SearchText()
     {
+        contractConfigVM.configList = FilterCode(contractConfigVM.configList, config.Code);
+        contractConfigVM.configList = FilterContractId(contractConfigVM.configList, config.ContractId);
+        contractConfigVM.configList = FilterDescription(contractConfigVM.configList, config.Description);
+        contractConfigVM.configList = FilterDataFormatId(contractConfigVM.configList, config.DataFormatId);
+    }
 
-        await ContConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
+    private static List<ContractConfiguration> FilterCode(List<ContractConfiguration> contractConfigurations, string Code)
+    {
+        if (string.IsNullOrEmpty(Code))
+        {
+            return contractConfigurations;
+        }
 
-        contractConfigDTO.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        return contractConfigurations.Where(x => x.Code.StartsWith(Code)).ToList();
+    }
 
+    private static List<ContractConfiguration> FilterDescription(List<ContractConfiguration> contractConfigurations, string Description)
+    {
+        if (string.IsNullOrEmpty(Description))
+        {
+            return contractConfigurations;
+        }
+
+        return contractConfigurations.Where(x => x.Description.StartsWith(Description)).ToList();
+    }
+
+    private static List<ContractConfiguration> FilterContractId(List<ContractConfiguration> contractConfigurations, int ContractId)
+    {
+        if (ContractId == 0)
+        {
+            return contractConfigurations;
+        }
+
+        return contractConfigurations.Where(x => x.ContractId.Equals(ContractId)).ToList();
+    }
+
+    private static List<ContractConfiguration> FilterDataFormatId(List<ContractConfiguration> contractConfigurations, int DataFormatId)
+    {
+        if (DataFormatId == 0)
+        {
+            return contractConfigurations;
+        }
+
+        return contractConfigurations.Where(x => x.DataFormatId.Equals(DataFormatId)).ToList();
     }
 }
