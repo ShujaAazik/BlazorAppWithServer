@@ -11,23 +11,33 @@ namespace UserManagementApi.Controllers
     {
         private readonly ContractConfigRepository _contractConfigRepository;
 
-        public ContractConfigController(DbConnect context)
+        public ContractConfigController(DbConnect context,IConfiguration configuration)
         {
-            _contractConfigRepository = new ContractConfigRepository(context);
+            _contractConfigRepository = new ContractConfigRepository(context, configuration);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContractConfig>>> GetContractConfigs()
         {
-            return new ActionResult<IEnumerable<ContractConfig>>(await _contractConfigRepository.ReadContractConfigs());
+            var configs = await _contractConfigRepository.ReadContractConfigs();
+            
+            return new ActionResult<IEnumerable<ContractConfig>>(configs);
         }
 
-        [HttpPost]
+        [HttpPost("CreateContractConfig")]
         public async Task<IActionResult> PostContractConfig(ContractConfig contractConfig)
         {
             await _contractConfigRepository.AddContractConfig(contractConfig);
 
             return Accepted();
+        }
+
+        [HttpPost("SearchContractConfigs")]
+        public async Task<ActionResult<IEnumerable<ContractConfig>>> SearchContractConfig(ContractConfigSearchCM contractConficSearchCM)
+        {
+            var configs = await _contractConfigRepository.GetFilteredConfigList(contractConficSearchCM);
+
+            return new ActionResult<IEnumerable<ContractConfig>>(configs);
         }
 
         [HttpPut("{id}")]

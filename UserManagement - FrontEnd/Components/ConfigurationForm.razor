@@ -1,6 +1,8 @@
 ﻿@page "/AddconfigForm"
 @page "/UpdateConfig/{ContractConfigId:int}"
+@inject IConfiguration Configuration
 @inject NavigationManager navigationManager
+
 
 <EditForm Model="@ConfigVM.config" OnValidSubmit="@SaveContractConfig">
     <DataAnnotationsValidator />
@@ -25,7 +27,7 @@
     <div class="row p-3">
         <label class="col-sm-3 col-form-label">Type</label>
         <InputSelect Value="@ConfigVM.config.DataFormatId" ValueExpression="@(() => ConfigVM.config.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
-            <option value="0">----Select User Id----</option>
+            <option value="0">----Select Format Type----</option>
             @foreach (var type in ConfigVM.dataFormats)
             {
                 <option value="@type.DataFormatId">@type.Name</option>
@@ -83,7 +85,9 @@
 
 @code {
 
-    public ContractConfigVM ConfigVM = new();
+    public ContractConfigListVM ConfigVM = new();
+
+    public ContConfigRepositoryAPI contConfigRepositoryAPI;
 
     [Parameter]
     public int contractConfigId { get; set; }
@@ -94,9 +98,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ConfigVM.dataFormats = (await ContConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+        contConfigRepositoryAPI = new(Configuration);
 
-        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        ConfigVM.dataFormats = (await contConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+
+        ConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
 
         ConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
@@ -132,16 +138,16 @@
 
         if (contractConfigId > 0)
         {
-            await ContConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
+            await contConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
         }
         else
         {
-            await ContConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
+            await contConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
         }
 
         ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
 
-        ConfigVM.configList = (await ContConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        ConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
 
         navigationManager.NavigateTo("ContractConfig");
     }

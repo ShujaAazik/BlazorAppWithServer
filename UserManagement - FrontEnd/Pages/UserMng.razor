@@ -1,4 +1,5 @@
 ﻿@page "/UserManagement"
+@inject IConfiguration Configuration
 
 <table>
     <tr>
@@ -110,21 +111,23 @@
 
     private User updateUser = new();
 
+    private UserRepositoryAPI userRepositoryAPI;
+
     private async Task AddUser()
     {
         if (addUser.Name != null && addUser.Email != null && addUser.Address != null)
         {
-            await UserRepositoryAPI.AddUserAsync(addUser);
+            await userRepositoryAPI.AddUserAsync(addUser);
 
             addUser = new();
 
-            userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+            userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
         }
     }
 
     private async Task ReadUser()
     {
-        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
     private async Task UpdateUserModel(int value)
@@ -137,20 +140,20 @@
 
     private async Task UpdateUser()
     {
-        await UserRepositoryAPI.UpdateUserAsync(updateUser);
-
-        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        await userRepositoryAPI.UpdateUserAsync(updateUser);
 
         ClearFields();
+
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
     private async Task RemoveUser()
     {
-        await UserRepositoryAPI.DeleteUserAsync(updateUser.UserId);
+        await userRepositoryAPI.DeleteUserAsync(updateUser.UserId);
 
         ClearFields();
 
-        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
     private void ClearFields()
@@ -160,7 +163,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        userList = (await UserRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        userRepositoryAPI = new(Configuration);
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
 }

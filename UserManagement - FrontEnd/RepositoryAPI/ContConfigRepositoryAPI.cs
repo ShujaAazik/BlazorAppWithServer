@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,37 +9,66 @@ using System.Threading.Tasks;
 
 namespace UserManagement___FrontEnd
 {
-    public static class ContConfigRepositoryAPI
+    public class ContConfigRepositoryAPI
     {
-        static string baseUrl = "https://localhost:7242/api/";
-        static HttpClient client = new();
-        static HttpResponseMessage response = null;
+        private string baseUrl;
+        private HttpClient client = new();
+        private HttpResponseMessage response = null;
 
-        public async static Task<IList<ContractConfiguration>> GetContConfigAsync()
+        public ContConfigRepositoryAPI(IConfiguration configuration)
         {
-            response = await client.GetAsync(Path.Combine(baseUrl,"ContractConfig"));
-
-            return (List<ContractConfiguration>)await response.Content.ReadAsAsync<IEnumerable<ContractConfiguration>>();
+            baseUrl = configuration["BaseUrl"];
         }
 
-        public async static Task<IList<DataFormat>> GetDataFormatAsync()
+        public async Task<IList<ContractConfiguration>> GetContConfigAsync()
         {
-            response = await client.GetAsync(Path.Combine(baseUrl, "DataFormat"));
+            var urlPath = Path.Combine(baseUrl, "ContractConfig");
 
-            return (List<DataFormat>)await response.Content.ReadAsAsync<IEnumerable<DataFormat>>();
+            response = await client.GetAsync(urlPath);
+
+            var contractCons = (List<ContractConfiguration>)await response.Content.ReadAsAsync<IEnumerable<ContractConfiguration>>();
+
+            return contractCons;
         }
 
-        public async static Task AddContConfigAsync(ContractConfiguration config)
+        public async Task<IList<ContractConfiguration>> GetFilteredContConfigAsync(ContractConfigSearch contractConfigSearch)
         {
-            response = await client.PostAsync($"{baseUrl}ContractConfig", new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
+
+            var RequestUri = new Uri(Path.Combine(baseUrl, "ContractConfig/SearchContractConfigs"));
+
+            response = await client.PostAsJsonAsync<ContractConfigSearch>(RequestUri, contractConfigSearch);
+
+            var contractCons = (List<ContractConfiguration>)await response.Content.ReadAsAsync<IEnumerable<ContractConfiguration>>();
+
+            return contractCons;
         }
 
-        public async static Task UpdateContConfigAsync(ContractConfiguration config)
+        public async Task<IList<DataFormat>> GetDataFormatAsync()
         {
-            response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json"));
+            var urlPath = Path.Combine(baseUrl, "DataFormat");
+
+            response = await client.GetAsync(urlPath);
+
+            var dataFormats = (List<DataFormat>)await response.Content.ReadAsAsync<IEnumerable<DataFormat>>();
+
+            return dataFormats;
         }
 
-        public async static Task DeleteContConfigAsync(int id)
+        public async Task AddContConfigAsync(ContractConfiguration config)
+        {
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+
+            response = await client.PostAsync($"{baseUrl}ContractConfig/CreateContractConfig", jsonContent);
+        }
+
+        public async Task UpdateContConfigAsync(ContractConfiguration config)
+        {
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+
+            response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", jsonContent);
+        }
+
+        public async Task DeleteContConfigAsync(int id)
         {
             response = await client.DeleteAsync($"{baseUrl}ContractConfig/{id}");
         }

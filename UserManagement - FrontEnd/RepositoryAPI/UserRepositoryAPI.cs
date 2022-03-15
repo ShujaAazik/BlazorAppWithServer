@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -7,32 +8,45 @@ using System.Threading.Tasks;
 
 namespace UserManagement___FrontEnd
 {
-    public static class UserRepositoryAPI
+    public class UserRepositoryAPI
     {
-        static string baseUrl = "https://localhost:7242/api/Users";
-        static HttpClient client = new();
-        static HttpResponseMessage response = null;
+        private string baseUrl;
+        private HttpClient client = new();
+        private HttpResponseMessage response = null;
 
-        public async static Task<IList<User>> GetUsersAsync()
+        public UserRepositoryAPI(IConfiguration configuration)
         {
-            response =  await client.GetAsync(baseUrl);
-
-            return (List<User>) await response.Content.ReadAsAsync<IEnumerable<User>>();
+            baseUrl = configuration["BaseUrl"];
         }
 
-        public async static Task AddUserAsync(User user)
+        public async Task<IList<User>> GetUsersAsync()
         {
-            response = await client.PostAsync(baseUrl,new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
+            var urlPath = Path.Combine(baseUrl, "Users");
+
+            response =  await client.GetAsync(urlPath);
+
+            var users = (List<User>)await response.Content.ReadAsAsync<IEnumerable<User>>();
+
+            return users;
         }
 
-        public async static Task UpdateUserAsync(User user)
+        public async Task AddUserAsync(User user)
         {
-            response = await client.PutAsync(Path.Combine(baseUrl,$"{user.UserId}"), new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json"));
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
+
+            response = await client.PostAsync($"{baseUrl}Users", jsonContent);
         }
 
-        public async static Task DeleteUserAsync(int id)
+        public async Task UpdateUserAsync(User user)
         {
-            response = await client.DeleteAsync(Path.Combine(baseUrl,$"{id}"));
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
+
+            response = await client.PutAsync($"{baseUrl}Users/{user.UserId}", jsonContent);
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            response = await client.DeleteAsync($"{baseUrl}Users/{id}");
         }
     }
 }

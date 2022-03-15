@@ -7,9 +7,12 @@ namespace UserManagementApi.Services
     {
         public readonly DbConnect _context;
 
-        public ContractConfigRepository(DbConnect context)
+        private IConfiguration _config;
+
+        public ContractConfigRepository(DbConnect context,IConfiguration configuration)
         {
             _context = context;
+            _config = configuration;
         }
 
         public async Task AddDataFormat(DataFormat dataFormat)
@@ -50,14 +53,13 @@ namespace UserManagementApi.Services
                  _context.Add(contractConfig);
                 await _context.SaveChangesAsync();
             }
-            
         }
 
         public async Task<IEnumerable<ContractConfig>> ReadContractConfigs()
         {
             return await _context.contractConfigs
                 .Include(x=>x.DataFormat)
-                //.Take(3)
+                .Take(_config.GetValue<int>("DisplayedRowList"))
                 .ToListAsync();
         }
 
@@ -71,6 +73,58 @@ namespace UserManagementApi.Services
         {
             _context.contractConfigs.Remove(_context.contractConfigs.First(contConfig => contConfig.ContractConfigId == contractConfigId));
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ContractConfig>> GetFilteredConfigList(ContractConfigSearchCM contractConficSearchCM)
+        {
+            var configList = await _context.contractConfigs.Include(x => x.DataFormat).ToListAsync();
+
+            configList = FilterCode(configList, contractConficSearchCM.Code);
+            configList = FilterContractId(configList, contractConficSearchCM.ContractId);
+            configList = FilterDescription(configList, contractConficSearchCM.Description);
+            configList = FilterDataFormatId(configList, contractConficSearchCM.DataFormatId);
+
+            return configList;
+        }
+
+        private static List<ContractConfig> FilterCode(List<ContractConfig> contractConfigurations, string Code)
+        {
+            if (string.IsNullOrEmpty(Code))
+            {
+                return contractConfigurations;
+            }
+
+            return contractConfigurations.Where(x => x.Code.ToLower().Contains(Code.ToLower())).ToList();
+        }
+
+        private static List<ContractConfig> FilterDescription(List<ContractConfig> contractConfigurations, string Description)
+        {
+            if (string.IsNullOrEmpty(Description))
+            {
+                return contractConfigurations;
+            }
+
+            return contractConfigurations.Where(x => x.Description.ToLower().Contains(Description.ToLower())).ToList();
+        }
+
+        private static List<ContractConfig> FilterContractId(List<ContractConfig> contractConfigurations, int? ContractId)
+        {
+            if (ContractId == 0 || ContractId == null)
+            {
+                return contractConfigurations;
+            }
+
+            return contractConfigurations.Where(x => x.ContractId == ContractId).ToList();
+        }
+
+        private static List<ContractConfig> FilterDataFormatId(List<ContractConfig> contractConfigurations, int? DataFormatId)
+        {
+            if (DataFormatId == 0 || DataFormatId == null)
+            {
+                return contractConfigurations;
+            }
+
+            return contractConfigurations.Where(x => x.DataFormatId.Equals(DataFormatId)).ToList();
         }
     }
 }

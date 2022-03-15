@@ -1,5 +1,6 @@
 ﻿@page "/ConfirmationPrompt/{ContractConfigId:int}"
 @inject NavigationManager navigationManager
+@inject IConfiguration Configuration
 
 <div>
     <p>Are you sure you want to delete the record?</p>
@@ -13,9 +14,16 @@
     [Parameter]
     public int contractConfigId { get; set; }
 
+    private ContConfigRepositoryAPI contConfigRepositoryAPI;
+
+    protected override void OnInitialized()
+    {
+        contConfigRepositoryAPI = new(Configuration);
+    }
+
     protected async Task Yes()
     {
-        await ContConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
+        await contConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
 
         navigationManager.NavigateTo("ContractConfig");
     }

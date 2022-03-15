@@ -23,6 +23,6 @@ namespace UserManagement___FrontEnd
         [Range(1,int.MaxValue, ErrorMessage ="Seletc a Valid Data Type")]
         public int DataFormatId { get; set; }
 
-        public DataFormat DataFormat { get; set; }
+        public DataFormat DataFormat { get; set; } = new();
     }
 }

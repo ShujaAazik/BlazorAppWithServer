@@ -2,7 +2,7 @@
 
 namespace UserManagement___FrontEnd
 {
-    public class ContractConfigVM
+    public class ContractConfigListVM
     {
         public ContractConfiguration config = new();
 
@@ -11,6 +11,8 @@ namespace UserManagement___FrontEnd
         public List<DataFormat> dataFormats = new();
 
         public List<Contract> contracts = new();
+
+        public ContractConfigSearch search = new ContractConfigSearch();
 
         public ContractConfiguration RefreshConfig(ContractConfiguration configuration)
         {
