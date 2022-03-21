@@ -1,0 +1,32 @@
+﻿@page "/ConfirmationPrompt/{ContractConfigId:int}"
+@inject NavigationManager navigationManager
+@inject IConfiguration Configuration
+
+<div>
+    <p>Are you sure you want to delete the record?</p>
+
+    <button @onclick="Yes" class="btn btn-outline-danger">Yes</button>
+    <button @onclick="No" class="btn btn-primary">No</button>
+</div>
+
+@code {
+
+    [Parameter]
+    public int contractConfigId { get; set; }
+
+    private ContConfigRepositoryAPI contConfigRepositoryAPI;
+
+    protected override void OnInitialized()
+    {
+        contConfigRepositoryAPI = new(Configuration);
+    }
+
+    protected async Task Yes()
+    {
+        await contConfigRepositoryAPI.DeleteContConfigAsync(contractConfigId);
+
+        navigationManager.NavigateTo("ContractConfig");
+    }
+
+    protected void No() => navigationManager.NavigateTo("ContractConfig");
+}

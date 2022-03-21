@@ -1,0 +1,170 @@
+﻿@page "/UserManagement"
+@inject IConfiguration Configuration
+
+<table>
+    <tr>
+        <td class="col-6">
+            <EditForm Model="@addUser" OnValidSubmit="@AddUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <table>
+                <tr class="my-1 row">
+                    <td class="col-auto"><h2>Create User</h2></td>
+                </tr>
+                <tr class="my-3 row">
+                    <td class="col-sm-3 col-form-label">Name</td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Name" class="form-control"/></td>
+                </tr>
+                <tr class="my-3 row">
+                    <td class="col-sm-3 col-form-label">Address</td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Address" class="form-control"/></td>
+                </tr>
+                <tr class="my-3 row">
+                    <td class="col-sm-3 col-form-label">Email</td>
+                    <td class="col-sm-9"><InputText @bind-Value="addUser.Email" class="form-control"/></td>
+                </tr>
+                <tr class="mb-2 row">
+                    <td class="col-auto"><button class="btn btn-primary">Add User</button></td>
+                </tr>
+            </table>
+            </EditForm>
+        </td>
+        <td class="col-6">
+            <EditForm Model="@updateUser" OnValidSubmit="@UpdateUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <table>
+                    <tr class="my-1 row">
+                        <td class="col-auto"><h2>Update User</h2></td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">User</td>
+                        <td class="col-sm-9">
+                            <InputSelect Value="@updateUser.UserId" ValueExpression="@(()=>updateUser.UserId)" ValueChanged="@((int value)=>UpdateUserModel(value))" class="form-control">
+                                    <option value="0">----Select User Id----</option>
+                                    @foreach (var user in userList)
+                                    {
+                                        <option value="@user.UserId">@user.Name</option>
+                                    }
+
+                            </InputSelect>
+                        </td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">Name</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Name"/> </td>
+                    </tr>
+                    <tr class="mb-1 row">
+                        <td class="col-sm-3 col-form-label">Address</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Address"/></td>
+                    </tr>
+                    <tr class="mb-3 row">
+                        <td class="col-sm-3 col-form-label">Email</td>
+                        <td class="col-sm-9"><InputText class="form-control" @bind-Value="updateUser.Email"/></td>
+                    </tr>
+                    <tr class="mb-1 row justify-content-center">
+                        <td class="col-6"><button class="btn btn-primary">Update User</button></td>
+                        <td class="col-6"><button class="btn btn-primary" @onclick="RemoveUser">Delete User</button></td>
+                    </tr>
+                </table>
+            </EditForm>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Read User</h2></td>
+                </tr>
+                <tr>
+                    <td>
+                        @if (userList.Any())
+                        {
+                            <table class="table table-md table-striped table-bordered">
+                                <tr><th>User Id</th><th>Name</th><th>Address</th><th>Email</th></tr>
+                                @foreach (var user in userList)
+                                {
+                                    <tr><td>@user.UserId</td><td>@user.Name</td><td>@user.Address</td><td>@user.Email</td></tr>
+                                }
+                            </table>
+                        }
+                        else
+                        {
+                            <p>The List is Empty</p>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-primary" @onclick="ReadUser">Read User</button></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+
+@code {
+
+    private List<User> userList = new();
+
+    private User addUser = new();
+
+    private User updateUser = new();
+
+    private UserRepositoryAPI userRepositoryAPI;
+
+    private async Task AddUser()
+    {
+        if (addUser.Name != null && addUser.Email != null && addUser.Address != null)
+        {
+            await userRepositoryAPI.AddUserAsync(addUser);
+
+            addUser = new();
+
+            userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+        }
+    }
+
+    private async Task ReadUser()
+    {
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+    }
+
+    private async Task UpdateUserModel(int value)
+    {
+        if (value > 0)
+        {
+            updateUser = userList.First(offset => offset.UserId == value);
+        }
+    }
+
+    private async Task UpdateUser()
+    {
+        await userRepositoryAPI.UpdateUserAsync(updateUser);
+
+        ClearFields();
+
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+    }
+
+    private async Task RemoveUser()
+    {
+        await userRepositoryAPI.DeleteUserAsync(updateUser.UserId);
+
+        ClearFields();
+
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+    }
+
+    private void ClearFields()
+    {
+        updateUser = new();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        userRepositoryAPI = new(Configuration);
+        userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
+    }
+
+}

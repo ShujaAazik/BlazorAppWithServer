@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contract Config - Front End", "UserManagement - FrontEnd\Contract Config - Front End.csproj", "{B22DCD9F-457D-4985-B226-773A4761468F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementApi", "UserManagementApi\UserManagementApi.csproj", "{A93422F8-8554-4098-A7FB-80BB2980F902}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B22DCD9F-457D-4985-B226-773A4761468F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B22DCD9F-457D-4985-B226-773A4761468F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B22DCD9F-457D-4985-B226-773A4761468F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B22DCD9F-457D-4985-B226-773A4761468F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A93422F8-8554-4098-A7FB-80BB2980F902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A93422F8-8554-4098-A7FB-80BB2980F902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A93422F8-8554-4098-A7FB-80BB2980F902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A93422F8-8554-4098-A7FB-80BB2980F902}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF927F94-786F-41BB-B9CE-6C591E6BA173}
+	EndGlobalSection
+EndGlobal
