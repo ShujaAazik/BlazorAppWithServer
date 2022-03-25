@@ -2,6 +2,7 @@
 @page "/UpdateConfig/{ContractConfigId:int}"
 @inject IConfiguration Configuration
 @inject NavigationManager navigationManager
+@using Newtonsoft.Json
 
 
 <EditForm Model="@ConfigVM.config" OnValidSubmit="@SaveContractConfig">
@@ -100,9 +101,10 @@
     {
         contConfigRepositoryAPI = new(Configuration);
 
-        ConfigVM.dataFormats = (await contConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+        ConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetContConfigAsync()).Content).OrderBy(offset => offset.ContractConfigId).ToList();
 
-        ConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        ConfigVM.dataFormats = JsonConvert.DeserializeObject<List<DataFormat>>((await contConfigRepositoryAPI.GetDataFormatAsync()).Content).OrderBy(offset => offset.DataFormatId).ToList();
+
 
         ConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
@@ -146,8 +148,6 @@
         }
 
         ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
-
-        ConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
 
         navigationManager.NavigateTo("ContractConfig");
     }

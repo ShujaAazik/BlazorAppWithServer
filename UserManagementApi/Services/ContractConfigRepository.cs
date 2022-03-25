@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using UserManagementApi.Models;
+using System.Text;
 
 namespace UserManagementApi.Services
 {
@@ -15,76 +17,178 @@ namespace UserManagementApi.Services
             _config = configuration;
         }
 
-        public async Task AddDataFormat(DataFormat dataFormat)
+        public async Task<CommonResponseCM> AddDataFormat(DataFormat dataFormat)
         {
-            if (!_context.DataFormats.Any(format=>format.Name == dataFormat.Name))
+            CommonResponseCM response;
+            try
             {
-                _context.DataFormats.Add(dataFormat);
-                await _context.SaveChangesAsync();
+                if (!_context.DataFormats.Any(format => format.Name == dataFormat.Name))
+                {
+                    _context.DataFormats.Add(dataFormat);
+                    await _context.SaveChangesAsync();
+                }
+                response = new(true);
             }
+            catch (Exception)
+            {
+                response = new(false, "Unable to add Data Format to database. Contact Help Desk for more Details");
+            }
+            
+            return response;
         }
 
-        public async Task<IEnumerable<DataFormat>> GetDataFormats()
+        public async Task<CommonResponseCM> GetDataFormats()
         {
-            return await _context.DataFormats.ToListAsync();
+            var content = new List<DataFormat>();
+            CommonResponseCM response;
+            try
+            {
+                content = await _context.DataFormats.ToListAsync();
+                response = new(true);
+                response.CreateContent(content);
+            }
+            catch (Exception)
+            {
+                response = new(false,"Unable to retrieve Data Formats from database. Contact Help Desk for more Details");
+            }
+
+            return response;
         }
 
-        public async Task UpdateDataFormat(DataFormat dataFormat)
+        public async Task<CommonResponseCM> UpdateDataFormat(DataFormat dataFormat)
         {
-            _context.Update(dataFormat);
-            await _context.SaveChangesAsync();
+            CommonResponseCM response;
+            try
+            {
+                _context.Update(dataFormat);
+                await _context.SaveChangesAsync();
+                response = new(true);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to update Data Format to database. Contact Help Desk for more details");
+            }
+
+            return response;
         }
 
-        public async Task RemoveDataFormat(int dataFormatId)
+        public async Task<CommonResponseCM> RemoveDataFormat(int dataFormatId)
         {
-            _context.DataFormats.Remove(_context.DataFormats.First(df => df.DataFormatId == dataFormatId));
-            await _context.SaveChangesAsync();
+            CommonResponseCM response;
+            try
+            {
+                _context.DataFormats.Remove(_context.DataFormats.First(df => df.DataFormatId == dataFormatId));
+                await _context.SaveChangesAsync();
+                response = new(true);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to remove Data Format from database. Contact Help Desk for more details");
+            }
+
+            return response;
         }
 
-        public async Task AddContractConfig(ContractConfig contractConfig)
+        public async Task<CommonResponseCM> AddContractConfig(ContractConfig contractConfig)
         {
-            if (_context.DataFormats.Any(df=>df.DataFormatId == contractConfig.DataFormatId))
+            CommonResponseCM response;
+            try
+            {
+                if (_context.DataFormats.Any(df => df.DataFormatId == contractConfig.DataFormatId))
+                {
+                    _context.Update(contractConfig);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    _context.Add(contractConfig);
+                    await _context.SaveChangesAsync();
+                }
+                response = new(true);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to add Contract Configuration to database. Contact Help Desk for more Details");
+            }
+
+            return response;
+        }
+
+        public async Task<CommonResponseCM> ReadContractConfigs()
+        {
+            CommonResponseCM response;
+            try
+            {
+                var content = await _context.contractConfigs
+                                .Include(x => x.DataFormat)
+                                .Take(_config.GetValue<int>("DisplayedRowList"))
+                                .ToListAsync();
+                response = new(true);
+                response.CreateContent(content);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to retrieve Contract Configurations from database. Contact Help Desk for more Details");
+            }
+
+            return response;
+        }
+
+        public async Task<CommonResponseCM> UpdateContractConfig(ContractConfig contractConfig)
+        {
+            CommonResponseCM response;
+            try
             {
                 _context.Update(contractConfig);
                 await _context.SaveChangesAsync();
+                response = new(true);
             }
-            else
+            catch (Exception)
             {
-                 _context.Add(contractConfig);
-                await _context.SaveChangesAsync();
+                response = new(false, "Unable to update Contract Configuration to database. Contact Help Desk for more Details");
             }
+
+            return response;
         }
 
-        public async Task<IEnumerable<ContractConfig>> ReadContractConfigs()
+        public async Task<CommonResponseCM> DeleteContractConfig(int contractConfigId)
         {
-            return await _context.contractConfigs
-                .Include(x=>x.DataFormat)
-                .Take(_config.GetValue<int>("DisplayedRowList"))
-                .ToListAsync();
+            CommonResponseCM response;
+            try
+            {
+                _context.contractConfigs.Remove(_context.contractConfigs.First(contConfig => contConfig.ContractConfigId == contractConfigId));
+                await _context.SaveChangesAsync();
+                response = new(true);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to remove Contract Configuration from database. Contact Help Desk for more Details");
+            }
+
+            return response;
         }
 
-        public async Task UpdateContractConfig(ContractConfig contractConfig)
+        public async Task<CommonResponseCM> GetFilteredConfigList(ContractConfigSearchCM contractConficSearchCM)
         {
-            _context.Update(contractConfig);
-            await _context.SaveChangesAsync();
-        }
+            CommonResponseCM response;
+            try
+            {
+                var configList = await _context.contractConfigs.Include(x => x.DataFormat).ToListAsync();
 
-        public async Task DeleteContractConfig(int contractConfigId)
-        {
-            _context.contractConfigs.Remove(_context.contractConfigs.First(contConfig => contConfig.ContractConfigId == contractConfigId));
-            await _context.SaveChangesAsync();
-        }
+                configList = FilterCode(configList, contractConficSearchCM.Code);
+                configList = FilterContractId(configList, contractConficSearchCM.ContractId);
+                configList = FilterDescription(configList, contractConficSearchCM.Description);
+                configList = FilterDataFormatId(configList, contractConficSearchCM.DataFormatId);
 
-        public async Task<List<ContractConfig>> GetFilteredConfigList(ContractConfigSearchCM contractConficSearchCM)
-        {
-            var configList = await _context.contractConfigs.Include(x => x.DataFormat).ToListAsync();
+                response = new(true);
+                response.CreateContent(configList);
+            }
+            catch (Exception)
+            {
+                response = new(false, "Unable to retrieve Contract Configurations from database. Contact Help Desk for more Details");
+            }
 
-            configList = FilterCode(configList, contractConficSearchCM.Code);
-            configList = FilterContractId(configList, contractConficSearchCM.ContractId);
-            configList = FilterDescription(configList, contractConficSearchCM.Description);
-            configList = FilterDataFormatId(configList, contractConficSearchCM.DataFormatId);
-
-            return configList;
+            return response;
         }
 
         private static List<ContractConfig> FilterCode(List<ContractConfig> contractConfigurations, string Code)

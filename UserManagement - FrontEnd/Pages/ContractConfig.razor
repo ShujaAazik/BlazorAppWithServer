@@ -3,6 +3,7 @@
 @inject IConfiguration Configuration
 @inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
+@using Newtonsoft.Json
 
 <div class="row m-3 col-auto">
     <div class="form-group">
@@ -62,6 +63,14 @@
     else
     {
         <p>The List is Empty</p>
+
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    Testing
+                </div>
+            </div>
+        </div>
     }
 </div>
 
@@ -81,9 +90,13 @@
     {
         contConfigRepositoryAPI = new(Configuration);
 
-        contractConfigVM.dataFormats = (await contConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+        contractConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetContConfigAsync()).Content)
+                                        .OrderBy(offset => offset.ContractConfigId)
+                                        .ToList();
 
-        contractConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        contractConfigVM.dataFormats = JsonConvert.DeserializeObject<List<DataFormat>>((await contConfigRepositoryAPI.GetDataFormatAsync()).Content)
+                                        .OrderBy(offset => offset.DataFormatId)
+                                        .ToList();
 
         contractConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
@@ -95,6 +108,6 @@
 
     protected async Task SearchText()
     {
-        contractConfigVM.configList = (await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)).ToList();
+        contractConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)).Content);
     }
 }

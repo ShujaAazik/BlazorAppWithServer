@@ -17,9 +17,9 @@ namespace UserManagementApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DataFormat>>> GetAllDataFormats()
+        public async Task<ActionResult<CommonResponseCM>> GetAllDataFormats()
         {
-            return new ActionResult<IEnumerable<DataFormat>>(await _contractConfigRepository.GetDataFormats());
+            return new ActionResult<CommonResponseCM>(await _contractConfigRepository.GetDataFormats());
         }
 
         [HttpPost]
