@@ -5,6 +5,24 @@
 @inject IJSRuntime JSRuntime
 @using Newtonsoft.Json
 
+    <div>
+            <div class="modal fade" id="ErrorModal" tabindex="-1" role="dialog" aria-labelledby="headerModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="headerModal">Error Occured</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-danger">
+                            <p>@message</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <div class="row m-3 col-auto">
     <div class="form-group">
         <select @bind="contractConfigVM.search.ContractId" class="form-control-sm">
@@ -26,24 +44,6 @@
         <button @onclick="@SearchText" class="btn btn-primary">Search</button>
     </div>
 </div>
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ErrorModal">+</button>
-
-<div class="modal fade" id="ErrorModal" tabindex="-1" role="dialog" aria-labelledby="headerModal" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="headerModal"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Modal body text goes here.</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
 <div class="row m-3 col-6">
     @if (contractConfigVM.configList.Any())
@@ -81,8 +81,6 @@
     else
     {
         <p>The List is Empty</p>
-
-
     }
 </div>
 
@@ -98,31 +96,28 @@
 
     private ContConfigRepositoryAPI contConfigRepositoryAPI;
 
+    private ContractConfigRM configListResponse;
+
+    private ContractConfigRM dataFormatListResponse;
+
+    private string? message;
+
     protected override async Task OnInitializedAsync()
     {
         contConfigRepositoryAPI = new(Configuration);
 
-        contractConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetContConfigAsync()).Content)
-                                        .OrderBy(offset => offset.ContractConfigId)
-                                        .ToList();
+        configListResponse = await contConfigRepositoryAPI.GetContConfigAsync();
 
-        contractConfigVM.dataFormats = JsonConvert.DeserializeObject<List<DataFormat>>((await contConfigRepositoryAPI.GetDataFormatAsync()).Content)
-                                        .OrderBy(offset => offset.DataFormatId)
-                                        .ToList();
+        dataFormatListResponse = await contConfigRepositoryAPI.GetDataFormatAsync();
 
         contractConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
 
-    bool popup = false;
-
-    void Showpopup()
+    protected override async Task OnParametersSetAsync()
     {
-        popup = true;
-    }
+        ValidateApiResponse<ContractConfiguration>(configListResponse, ref contractConfigVM.configList);
 
-    void Closepopup()
-    {
-        popup = false;
+        ValidateApiResponse<DataFormat>(configListResponse, ref contractConfigVM.dataFormats);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -133,5 +128,19 @@
     protected async Task SearchText()
     {
         contractConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)).Content);
+    }
+
+    private void ValidateApiResponse<T>(ContractConfigRM contractConfigRM, ref List<T> content)
+    {
+        if (contractConfigRM.Succeeded)
+        {
+            content = JsonConvert.DeserializeObject<List<T>>(contractConfigRM.Content)
+                                        .ToList();
+        }
+        else
+        {
+            message = contractConfigRM.Message;
+            JSRuntime.InvokeAsync<object>("ShowErrorMessage", "#ErrorModal");
+        }
     }
 }

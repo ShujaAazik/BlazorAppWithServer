@@ -2,6 +2,7 @@
 @page "/UpdateConfig/{ContractConfigId:int}"
 @inject IConfiguration Configuration
 @inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
 @using Newtonsoft.Json
 
 
@@ -10,77 +11,96 @@
     <h3>@Heading</h3>
     <div class="col-6">
         <div class="row p-3">
-        <label class="col-sm-3 col-form-label">Contract ID</label>
-        <InputSelect @bind-Value="ConfigVM.config.ContractId" class="col-sm-5 form-control">
-            <option value="0">----Select Contract----</option>
-            @foreach (var contract in ConfigVM.contracts)
+            <label class="col-sm-3 col-form-label">Contract ID</label>
+            <InputSelect @bind-Value="ConfigVM.config.ContractId" class="col-sm-5 form-control">
+                <option value="0">----Select Contract----</option>
+                @foreach (var contract in ConfigVM.contracts)
+                {
+                    <option value="@contract.ContractId">@contract.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(()=>ConfigVM.config.ContractId)" class="col-4" />
+        </div>
+        <div class="row p-3">
+            <label class="col-sm-3 col-form-label">Code</label>
+            <InputText @bind-Value="ConfigVM.config.Code" class="col-sm-5 form-control" />
+            <ValidationMessage For="@(()=>ConfigVM.config.Code)" class="col-4" />
+        </div>
+        <div class="row p-3">
+            <label class="col-sm-3 col-form-label">Type</label>
+            <InputSelect Value="@ConfigVM.config.DataFormatId" ValueExpression="@(() => ConfigVM.config.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
+                <option value="0">----Select Format Type----</option>
+                @foreach (var type in ConfigVM.dataFormats)
+                {
+                    <option value="@type.DataFormatId">@type.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(()=>ConfigVM.config.DataFormatId)" class="col-4" />
+        </div>
+        <div class="row p-3">
+            @if (ConfigVM.config.DataFormatId > 0)
             {
-                <option value="@contract.ContractId">@contract.Name</option>
+                switch (ConfigVM.config.DataFormat.Name)
+                {
+                    case "String":
+                        <label class="col-sm-3 col-form-label">Value</label>
+                        <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
+                        <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
+                        break;
+                    case "CodeWord":
+                        <label class="col-sm-3 col-form-label">Value</label>
+                        <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
+                        <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
+                        break;
+                    case "Number":
+                        <label class="col-sm-3 col-form-label">Value</label>
+                        <InputNumber @bind-Value="contactId" onchange="@AddTypeModel(contactId)" class="col-sm-5 form-control" />
+                        <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
+                        break;
+                    case "JSON":
+                        <label class="col-sm-3 col-form-label">Value</label>
+                        <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
+                        <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
+                        break;
+                    case "SQLQuery":
+                        <label class="col-sm-3 col-form-label">Value</label>
+                        <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
+                        <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
+                        break;
+                    default:
+                        break;
+                }
             }
-        </InputSelect>
-        <ValidationMessage For="@(()=>ConfigVM.config.ContractId)" class="col-4" />
-    </div>
-    <div class="row p-3">
-        <label class="col-sm-3 col-form-label">Code</label>
-        <InputText @bind-Value="ConfigVM.config.Code" class="col-sm-5 form-control" />
-        <ValidationMessage For="@(()=>ConfigVM.config.Code)" class="col-4" />
-    </div>
-    <div class="row p-3">
-        <label class="col-sm-3 col-form-label">Type</label>
-        <InputSelect Value="@ConfigVM.config.DataFormatId" ValueExpression="@(() => ConfigVM.config.DataFormatId)" ValueChanged="@((int value)=>AddDataFormatModel(value))" class="col-sm-5 form-control">
-            <option value="0">----Select Format Type----</option>
-            @foreach (var type in ConfigVM.dataFormats)
-            {
-                <option value="@type.DataFormatId">@type.Name</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(()=>ConfigVM.config.DataFormatId)" class="col-4" />
-    </div>
-    <div class="row p-3">
-        @if (ConfigVM.config.DataFormatId > 0)
-        {
-            switch (ConfigVM.config.DataFormat.Name)
-            {
-                case "String":
-                    <label class="col-sm-3 col-form-label">Value</label>
-                    <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
-                    break;
-                case "CodeWord":
-                    <label class="col-sm-3 col-form-label">Value</label>
-                    <InputText @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
-                    break;
-                case "Number":
-                    <label class="col-sm-3 col-form-label">Value</label>
-                    <InputNumber @bind-Value="contactId" onchange="@AddTypeModel(contactId)" class="col-sm-5 form-control" />
-                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
-                    break;
-                case "JSON":
-                    <label class="col-sm-3 col-form-label">Value</label>
-                    <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
-                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
-                    break;
-                case "SQLQuery":
-                    <label class="col-sm-3 col-form-label">Value</label>
-                    <InputTextArea @bind-Value="ConfigVM.config.Value" class="col-sm-5 form-control" rows="3" />
-                    <ValidationMessage For="@(()=>ConfigVM.config.Value)" class="col-4" />
-                    break;
-                default:
-                    break;
-            }
-        }
-    </div>
-    <div class="row p-3">
-        <label class="col-sm-3 col-form-label">Description</label>
-        <InputText @bind-Value="ConfigVM.config.Description" class="col-sm-5 form-control" />
-        <ValidationMessage For="@(()=>ConfigVM.config.Description)" class="col-4" />
-    </div>
-    <div class="row py-lg-3 my-4"></div>
-    <div class="row mx-auto">
-        <div class="col-5"><button class="btn btn-primary px-5">Save Config</button></div>
-        <td><button @onclick="@(()=>navigationManager.NavigateTo("ContractConfig"))" class="btn btn-primary">Go Back</button></td>
-    </div>
+        </div>
+        <div class="row p-3">
+            <label class="col-sm-3 col-form-label">Description</label>
+            <InputText @bind-Value="ConfigVM.config.Description" class="col-sm-5 form-control" />
+            <ValidationMessage For="@(()=>ConfigVM.config.Description)" class="col-4" />
+        </div>
+        <div class="row py-lg-3 my-4"></div>
+        <div class="row mx-auto">
+            <div class="col-5"><button class="btn btn-primary px-5">Save Config</button></div>
+            <button @onclick="@(()=>navigationManager.NavigateTo("ContractConfig"))" class="btn btn-primary">Go Back</button>
+        </div>
+
+        <div>
+            <div class="modal fade" id="ErrorModal" tabindex="-1" role="dialog" aria-labelledby="headerModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="headerModal">Error Occured</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-danger">
+                            <p>@response?.Message</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </EditForm>
 
@@ -89,6 +109,8 @@
     public ContractConfigListVM ConfigVM = new();
 
     public ContConfigRepositoryAPI contConfigRepositoryAPI;
+
+    private ContractConfigRM response;
 
     [Parameter]
     public int contractConfigId { get; set; }
@@ -140,15 +162,27 @@
 
         if (contractConfigId > 0)
         {
-            await contConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
+            response = await contConfigRepositoryAPI.UpdateContConfigAsync(ConfigVM.config);
         }
         else
         {
-            await contConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
+            response = await contConfigRepositoryAPI.AddContConfigAsync(ConfigVM.config);
         }
 
-        ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
+        await ValidateApiResponse(response);
+    }
 
-        navigationManager.NavigateTo("ContractConfig");
+    private async Task ValidateApiResponse(ContractConfigRM contractConfigRM)
+    {
+        if (contractConfigRM.Succeeded)
+        {
+            ConfigVM.config = ConfigVM.RefreshConfig(ConfigVM.config);
+
+            navigationManager.NavigateTo("ContractConfig");
+        }
+        else
+        {
+            await JSRuntime.InvokeAsync<object>("ShowErrorMessage", "#ErrorModal");
+        }
     }
 }

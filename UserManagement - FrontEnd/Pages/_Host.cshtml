@@ -36,17 +36,18 @@
     </div>
 
     <script>
+        function ShowErrorMessage(modalId)
+        {
+            $(modalId).modal();
+        }
+    </script>
+
+    <script>
         function DataTablesAdd(table) {
             $(document).ready(function () {
                 $(table).DataTable();
             });
         }
-    </script>
-
-    <script>
-            $('#ErrorModal').on('shown.bs.modal', function () {
-          $('#myInput').trigger('focus')
-        })
     </script>
 
     <script>
