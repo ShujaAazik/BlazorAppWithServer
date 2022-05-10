@@ -9,7 +9,8 @@ IConfiguration configuration = builder.Configuration;
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<DbConnect>(options=>options.UseSqlServer(configuration.GetConnectionString("SQLDatabase")));
+builder.Services.AddDbContext<LookupContext>(options=>options.UseSqlServer(configuration.GetConnectionString("KTHSLookupDatabase")));
+builder.Services.AddDbContext<KTHSContext>(options => options.UseSqlServer(configuration.GetConnectionString("KTHSDatabase")));
 
 var app = builder.Build();
 

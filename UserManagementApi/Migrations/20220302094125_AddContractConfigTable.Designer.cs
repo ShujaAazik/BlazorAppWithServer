@@ -10,7 +10,7 @@ using UserManagementApi.Models;
 
 namespace UserManagementApi.Migrations
 {
-    [DbContext(typeof(DbConnect))]
+    [DbContext(typeof(LookupContext))]
     [Migration("20220302094125_AddContractConfigTable")]
     partial class AddContractConfigTable
     {

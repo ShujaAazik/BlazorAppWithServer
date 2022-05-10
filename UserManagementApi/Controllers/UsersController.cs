@@ -12,7 +12,7 @@ namespace UserManagementApi.Controllers
     {
         private readonly UserRepository _userRepository;
 
-        public UsersController(DbConnect context)
+        public UsersController(LookupContext context)
         {
             _userRepository = new UserRepository(context);
         }
