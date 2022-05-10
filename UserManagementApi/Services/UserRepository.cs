@@ -5,9 +5,9 @@ namespace UserManagementApi.Services
 {
     public class UserRepository
     {
-        private readonly LookupContext _context;
+        private readonly DbConnect _context;
 
-        public UserRepository(LookupContext context)
+        public UserRepository(DbConnect context)
         {
             _context = context;
         }

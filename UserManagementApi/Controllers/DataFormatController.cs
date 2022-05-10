@@ -11,7 +11,7 @@ namespace UserManagementApi.Controllers
     {
         private readonly ContractConfigRepository _contractConfigRepository;
 
-        public DataFormatController(LookupContext context,IConfiguration configuration)
+        public DataFormatController(DbConnect context,IConfiguration configuration)
         {
             _contractConfigRepository = new ContractConfigRepository(context, configuration);
         }

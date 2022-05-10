@@ -4,7 +4,6 @@
 @inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
 @using Newtonsoft.Json
-@using UserManagement___FrontEnd.Model
 
 
 <EditForm Model="@ConfigVM.config" OnValidSubmit="@SaveContractConfig">
@@ -14,10 +13,10 @@
         <div class="row p-3">
             <label class="col-sm-3 col-form-label">Contract ID</label>
             <InputSelect @bind-Value="ConfigVM.config.ContractId" class="col-sm-5 form-control">
-                <option value="-1" >----Select Contract----</option>
+                <option value="0">----Select Contract----</option>
                 @foreach (var contract in ConfigVM.contracts)
                 {
-                    <option value="@contract.ID">@contract.Name</option>
+                    <option value="@contract.ContractId">@contract.Name</option>
                 }
             </InputSelect>
             <ValidationMessage For="@(()=>ConfigVM.config.ContractId)" class="col-4" />
@@ -111,11 +110,7 @@
 
     public ContConfigRepositoryAPI contConfigRepositoryAPI;
 
-    public ContractRepositoryAPI contractRepositoryAPI;
-
     private ContractConfigRM response;
-
-    private ContractConfigRM contractResponse;
 
     [Parameter]
     public int contractConfigId { get; set; }
@@ -128,13 +123,12 @@
     {
         contConfigRepositoryAPI = new(Configuration);
 
-        contractRepositoryAPI = new(Configuration);
-
         ConfigVM.configList = JsonConvert.DeserializeObject<List<ContractConfiguration>>((await contConfigRepositoryAPI.GetContConfigAsync()).Content).OrderBy(offset => offset.ContractConfigId).ToList();
 
         ConfigVM.dataFormats = JsonConvert.DeserializeObject<List<DataFormat>>((await contConfigRepositoryAPI.GetDataFormatAsync()).Content).OrderBy(offset => offset.DataFormatId).ToList();
 
-        ConfigVM.contracts = JsonConvert.DeserializeObject<List<Contract>>((await contractRepositoryAPI.GetContractsAsync()).Content);
+
+        ConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
     }
 
     protected override void OnParametersSet()

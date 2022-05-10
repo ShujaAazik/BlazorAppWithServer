@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace UserManagementApi.Models
+﻿namespace UserManagementApi.Models
 {
     public class DataFormat
     {

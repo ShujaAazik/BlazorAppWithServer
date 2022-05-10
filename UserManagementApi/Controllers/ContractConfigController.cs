@@ -11,7 +11,7 @@ namespace UserManagementApi.Controllers
     {
         private readonly ContractConfigRepository _contractConfigRepository;
 
-        public ContractConfigController(LookupContext context,IConfiguration configuration)
+        public ContractConfigController(DbConnect context,IConfiguration configuration)
         {
             _contractConfigRepository = new ContractConfigRepository(context, configuration);
         }
@@ -19,26 +19,9 @@ namespace UserManagementApi.Controllers
         [HttpGet]
         public async Task<ActionResult<CommonResponseCM>> GetContractConfigs()
         {
-            var configs = new CommonResponseCM(true, "The api is working successfully.");
-
-            try
-            {
-                _contractConfigRepository.SQLCommandTest();
-                await _contractConfigRepository.ReadContractDictionary();
-            }
-            catch (Exception ex)
-            {
-                configs.Succeeded = false;
-                configs.Message = ex.Message;
-            }
+            var configs = await _contractConfigRepository.ReadContractConfigs();
             
             return new ActionResult<CommonResponseCM>(configs);
-        }
-
-        [HttpGet("ContractDictionary")]
-        public async Task<ActionResult<CommonResponseCM>> GetContractDictionary()
-        {
-            return await _contractConfigRepository.ReadContractDictionary();
         }
 
         [HttpPost("CreateContractConfig")]

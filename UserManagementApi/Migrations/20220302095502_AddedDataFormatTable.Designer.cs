@@ -10,7 +10,7 @@ using UserManagementApi.Models;
 
 namespace UserManagementApi.Migrations
 {
-    [DbContext(typeof(LookupContext))]
+    [DbContext(typeof(DbConnect))]
     [Migration("20220302095502_AddedDataFormatTable")]
     partial class AddedDataFormatTable
     {

@@ -22,7 +22,7 @@ namespace UserManagement___FrontEnd
 
         public async Task<ContractConfigRM> GetContConfigAsync()
         {
-            var urlPath = Path.Combine(baseUrl, "ContractConfig/ContractDictionary");
+            var urlPath = Path.Combine(baseUrl, "ContractConfig");
 
             response = await client.GetAsync(urlPath);
 
@@ -56,39 +56,24 @@ namespace UserManagement___FrontEnd
 
         public async Task<ContractConfigRM> AddContConfigAsync(ContractConfiguration config)
         {
-            try
-            {
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
 
-                response = await client.PostAsync($"{baseUrl}ContractConfig/CreateContractConfig", jsonContent);
+            response = await client.PostAsync($"{baseUrl}ContractConfig/CreateContractConfig", jsonContent);
 
-                var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
 
-                return responseModel;
-            }
-            catch (Exception ex)
-            {
-                return new ContractConfigRM(false, "Error occurred while contacting the server.");
-            }
+            return responseModel;
         }
 
         public async Task<ContractConfigRM> UpdateContConfigAsync(ContractConfiguration config)
         {
-            try
-            {
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
 
-                response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", jsonContent);
+            response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", jsonContent);
 
-                var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
 
-                return responseModel;
-            }
-            catch (Exception)
-            {
-
-                return new ContractConfigRM(false, "Error occurred while contacting the server.");
-            }
+            return responseModel;
         }
 
         public async Task<ContractConfigRM> DeleteContConfigAsync(int id)
@@ -99,6 +84,5 @@ namespace UserManagement___FrontEnd
 
             return responseModel;
         }
-
     }
 }

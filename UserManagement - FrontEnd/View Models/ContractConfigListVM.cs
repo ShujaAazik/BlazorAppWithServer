@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UserManagement___FrontEnd.Model;
 
 namespace UserManagement___FrontEnd
 {
@@ -13,7 +12,7 @@ namespace UserManagement___FrontEnd
 
         public List<Contract> contracts = new();
 
-        public ContractConfigSearch search = new();
+        public ContractConfigSearch search = new ContractConfigSearch();
 
         public ContractConfiguration RefreshConfig(ContractConfiguration configuration)
         {

@@ -10,7 +10,7 @@ using UserManagementApi.Models;
 
 namespace UserManagementApi.Migrations
 {
-    [DbContext(typeof(LookupContext))]
+    [DbContext(typeof(DbConnect))]
     [Migration("20220228102450_UserRemovedFromContext")]
     partial class UserRemovedFromContext
     {

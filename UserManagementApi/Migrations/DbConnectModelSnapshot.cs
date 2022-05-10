@@ -9,7 +9,7 @@ using UserManagementApi.Models;
 
 namespace UserManagementApi.Migrations
 {
-    [DbContext(typeof(LookupContext))]
+    [DbContext(typeof(DbConnect))]
     partial class DbConnectModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -25,14 +25,13 @@ namespace UserManagementApi.Migrations
                 {
                     b.Property<int>("ContractConfigId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractConfigId"), 1L, 1);
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("varchar(MAX)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ContractId")
                         .HasColumnType("int");
@@ -42,17 +41,17 @@ namespace UserManagementApi.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("varchar(MAX)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("varchar(MAX)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ContractConfigId");
 
                     b.HasIndex("DataFormatId");
 
-                    b.ToTable("ContractDictionary", (string)null);
+                    b.ToTable("contractConfigs");
                 });
 
             modelBuilder.Entity("UserManagementApi.Models.DataFormat", b =>
@@ -69,7 +68,32 @@ namespace UserManagementApi.Migrations
 
                     b.HasKey("DataFormatId");
 
-                    b.ToTable("DataFormats", (string)null);
+                    b.ToTable("DataFormats");
+                });
+
+            modelBuilder.Entity("UserManagementApi.Models.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("UserManagementApi.Models.ContractConfig", b =>
