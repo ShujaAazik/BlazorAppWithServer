@@ -1,0 +1,55 @@
+﻿@page "/DashBoard"
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+@using Newtonsoft.Json
+
+<h3>DashBoard</h3>
+
+@*<div class="col-4">
+    <canvas id="myChart"/>
+</div>*@
+
+<div class="col-6">
+    <canvas id="configChart"/>
+</div>
+
+
+
+@code {
+
+    IJSObjectReference JSObjectReference { get; set; }
+
+    private ContConfigRepositoryAPI contConfigRepositoryAPI;
+
+    private ContractConfigRM configListResponse;
+    private object config { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+       
+
+         contConfigRepositoryAPI = new(Configuration);
+
+        configListResponse = await contConfigRepositoryAPI.GetContConfigAsync();
+
+        config = new
+        {
+            Name = "Persentage of Accompishment",
+            ChartId = "configChart",
+            Label = JsonConvert.DeserializeObject<List<ContractConfiguration>>(configListResponse.Content).Select(x=>x.Code).ToArray(),
+            Data = Enumerable.Range(0,8).Select( y => new Random().Next(10,100)).ToArray()
+
+        };
+
+         JSObjectReference = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/ChartConfig.js");
+       // await JSObjectReference.InvokeVoidAsync("DisplayChart", "myChart");
+
+        await JSObjectReference.InvokeVoidAsync("ChartWithConfiguration",JsonConvert.SerializeObject(config));
+    }
+
+}

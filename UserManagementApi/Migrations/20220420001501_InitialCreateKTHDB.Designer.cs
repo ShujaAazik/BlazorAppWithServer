@@ -11,8 +11,8 @@ using UserManagementApi.Models;
 namespace UserManagementApi.Migrations
 {
     [DbContext(typeof(LookupContext))]
-    [Migration("20220223110318_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20220420001501_InitialCreateKTHDB")]
+    partial class InitialCreateKTHDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,26 +23,29 @@ namespace UserManagementApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("UserManagementApi.Models.User", b =>
+            modelBuilder.Entity("UserManagementApi.Models.ContractConfig", b =>
                 {
-                    b.Property<string>("ID")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
 
-                    b.Property<string>("Address")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(MAX)");
 
-                    b.Property<string>("Email")
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(MAX)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("Id");
 
-                    b.HasKey("ID");
-
-                    b.ToTable("Users");
+                    b.ToTable("ContractDictionary");
                 });
 #pragma warning restore 612, 618
         }

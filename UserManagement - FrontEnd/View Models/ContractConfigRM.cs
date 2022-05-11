@@ -7,5 +7,11 @@
         public string Content { get; set; }
 
         public string Message { get; set; }
+
+        public ContractConfigRM(bool Succeeded, string Message)
+        {
+            this.Succeeded = Succeeded;
+            this.Message = Message; 
+        }
     }
 }

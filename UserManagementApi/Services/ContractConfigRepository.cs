@@ -2,18 +2,20 @@
 using Newtonsoft.Json;
 using UserManagementApi.Models;
 using System.Text;
+using Microsoft.Data.SqlClient;
+using System.Collections;
 
 namespace UserManagementApi.Services
 {
     public class ContractConfigRepository
     {
-        public readonly DbConnect _context;
+        private LookupContext _lookUpContext;
 
         private IConfiguration _config;
 
-        public ContractConfigRepository(DbConnect context,IConfiguration configuration)
+        public ContractConfigRepository(LookupContext lookUpContext, IConfiguration configuration)
         {
-            _context = context;
+            _lookUpContext = lookUpContext;
             _config = configuration;
         }
 
@@ -22,10 +24,10 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                if (!_context.DataFormats.Any(format => format.Name == dataFormat.Name))
+                if (!_lookUpContext.DataFormats.Any(format => format.Name == dataFormat.Name))
                 {
-                    _context.DataFormats.Add(dataFormat);
-                    await _context.SaveChangesAsync();
+                    _lookUpContext.DataFormats.Add(dataFormat);
+                    await _lookUpContext.SaveChangesAsync();
                 }
                 response = new(true);
             }
@@ -43,7 +45,7 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                content = await _context.DataFormats.ToListAsync();
+                content = await _lookUpContext.DataFormats.ToListAsync();
                 response = new(true);
                 response.CreateContent(content);
             }
@@ -60,8 +62,8 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                _context.Update(dataFormat);
-                await _context.SaveChangesAsync();
+                _lookUpContext.Update(dataFormat);
+                await _lookUpContext.SaveChangesAsync();
                 response = new(true);
             }
             catch (Exception)
@@ -77,8 +79,8 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                _context.DataFormats.Remove(_context.DataFormats.First(df => df.DataFormatId == dataFormatId));
-                await _context.SaveChangesAsync();
+                _lookUpContext.DataFormats.Remove(_lookUpContext.DataFormats.First(df => df.DataFormatId == dataFormatId));
+                await _lookUpContext.SaveChangesAsync();
                 response = new(true);
             }
             catch (Exception)
@@ -94,23 +96,62 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                if (_context.DataFormats.Any(df => df.DataFormatId == contractConfig.DataFormatId))
+                if (_lookUpContext.DataFormats.Any(df => df.DataFormatId == contractConfig.DataFormatId))
                 {
-                    _context.Update(contractConfig);
-                    await _context.SaveChangesAsync();
+                    _lookUpContext.Update(contractConfig);
                 }
                 else
                 {
-                    _context.Add(contractConfig);
-                    await _context.SaveChangesAsync();
+                    _lookUpContext.Add(contractConfig);
                 }
+                await _lookUpContext.SaveChangesAsync();
                 response = new(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response = new(false, "Unable to add Contract Configuration to database. Contact Help Desk for more Details");
             }
 
+            return response;
+        }
+
+        public void SQLCommandTest()
+        {
+            string queryString = "SELECT [ID],[Name] FROM [dbo].[Contract]";
+            string connectionString = "Server=kth0-tvs-tsql1.dev.lhc.loc;Database=KTHS;User ID=Suja;Password=!GoldenLion46;";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                var resultList = new Hashtable();
+                try
+                {
+                    while (reader.Read())
+                    {
+                        resultList.Add(reader["ID"], reader["Name"]);
+                        Console.WriteLine(String.Format("{0}, {1}",
+                        reader["ID"], reader["Name"]));// etc
+                    }
+                }
+                finally
+                {
+                    // Always call Close when done reading.
+                    reader.Close();
+                }
+            }
+        }
+        
+        public async Task<CommonResponseCM> ReadContractDictionary()
+        {
+
+            CommonResponseCM response;
+            var content = await _lookUpContext.ContractConfig
+                .Include(x => x.DataFormat)
+                .ToListAsync();
+            response = new(true);
+            response.CreateContent(content);
             return response;
         }
 
@@ -119,7 +160,7 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                var content = await _context.contractConfigs
+                var content = await _lookUpContext.ContractConfig
                                 .Include(x => x.DataFormat)
                                 .Take(_config.GetValue<int>("DisplayedRowList"))
                                 .ToListAsync();
@@ -139,8 +180,8 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                _context.Update(contractConfig);
-                await _context.SaveChangesAsync();
+                _lookUpContext.Update(contractConfig);
+                await _lookUpContext.SaveChangesAsync();
                 response = new(true);
             }
             catch (Exception)
@@ -156,8 +197,8 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                _context.contractConfigs.Remove(_context.contractConfigs.First(contConfig => contConfig.ContractConfigId == contractConfigId));
-                await _context.SaveChangesAsync();
+                _lookUpContext.ContractConfig.Remove(_lookUpContext.ContractConfig.First(contConfig => contConfig.ContractConfigId == contractConfigId));
+                await _lookUpContext.SaveChangesAsync();
                 response = new(true);
             }
             catch (Exception)
@@ -173,7 +214,7 @@ namespace UserManagementApi.Services
             CommonResponseCM response;
             try
             {
-                var configList = await _context.contractConfigs.Include(x => x.DataFormat).ToListAsync();
+                var configList = await _lookUpContext.ContractConfig.Include(x => x.DataFormat).ToListAsync();
 
                 configList = FilterCode(configList, contractConficSearchCM.Code);
                 configList = FilterContractId(configList, contractConficSearchCM.ContractId);
@@ -213,7 +254,7 @@ namespace UserManagementApi.Services
 
         private static List<ContractConfig> FilterContractId(List<ContractConfig> contractConfigurations, int? ContractId)
         {
-            if (ContractId == 0 || ContractId == null)
+            if (ContractId == -1 || ContractId == null)
             {
                 return contractConfigurations;
             }
