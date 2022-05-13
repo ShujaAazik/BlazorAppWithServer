@@ -10,5 +10,11 @@ namespace UserManagementApi.Models
         }
 
         public DbSet<Contract> Contracts { get; set; }
+
+        public DbSet<Appointment> Appointments { get; set; }
+
+        public DbSet<Job> Jobs { get; set; }
+
+        public DbSet<JobCategory> JobCategories { get; set; }
     }
 }

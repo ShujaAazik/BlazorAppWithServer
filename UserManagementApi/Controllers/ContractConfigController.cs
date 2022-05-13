@@ -23,7 +23,6 @@ namespace UserManagementApi.Controllers
 
             try
             {
-                _contractConfigRepository.SQLCommandTest();
                 await _contractConfigRepository.ReadContractDictionary();
             }
             catch (Exception ex)

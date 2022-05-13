@@ -17,6 +17,8 @@ namespace UserManagementApi.Services
 
         public async Task<CommonResponseCM> ReadContractName()
         {
+            //var x = await _kthsContext.Appointments.Include(apnmt => apnmt.Job).Where(ap=>ap.Job.ID == Int32.Parse("3")).ToListAsync();
+            //var y = await _kthsContext.Jobs.ToListAsync();
             CommonResponseCM response;
             var content = await _kthsContext.Contracts.ToListAsync();
             response = new(true);
