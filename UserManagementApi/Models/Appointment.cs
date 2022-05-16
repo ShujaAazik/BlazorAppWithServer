@@ -9,8 +9,12 @@ namespace UserManagementApi.Models
         [Key]
         [Column("ID")]
         public int Id { get; set; }
+
         [Column("JobID")]
         public int JobId { get; set; }
+
+        public virtual Job Job { get; set; }
+
         [Column("StatusID")]
         public short StatusId { get; set; }
       

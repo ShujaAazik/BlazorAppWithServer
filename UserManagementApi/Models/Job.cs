@@ -9,16 +9,24 @@ namespace UserManagementApi.Models
         [Key]
         [Column("ID")]
         public int Id { get; set; }
+        
         [Column("ClientID")]
         public int ClientId { get; set; }
+
+        public virtual Client Client { get; set; }
+
         [Column("CategoryID")]
-        public short CategoryId { get; set; }
+        public short JobCategoryID { get; set; }
+        
         [Column("TypeID")]
         public short TypeId { get; set; }
+        
         [Column("StatusID")]
         public short StatusId { get; set; }
 
-        public virtual Appointment Appointment { get; set; }
+        public virtual List<Appointment> Appointments { get; set; }
+
+        public virtual JobCategory JobCatergory { get; set; }
 
     }
 }
