@@ -7,16 +7,18 @@ namespace UserManagementApi.Models
     public class Job
     {
         [Key]
-        [Column("Id")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        [Column("ID")]
+        public int Id { get; set; }
+        [Column("ClientID")]
+        public int ClientId { get; set; }
+        [Column("CategoryID")]
+        public short CategoryId { get; set; }
+        [Column("TypeID")]
+        public short TypeId { get; set; }
+        [Column("StatusID")]
+        public short StatusId { get; set; }
 
-        public int ClientID { get; set; }
-        
-        public int CategoryID { get; set; }
+        public virtual Appointment Appointment { get; set; }
 
-        public DateTime Date { get; set; }
-
-        public string Details { get; set; }
     }
 }

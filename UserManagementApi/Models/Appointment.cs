@@ -7,21 +7,12 @@ namespace UserManagementApi.Models
     public class Appointment
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
-
-        public int JobID { get; set; }
-
-        public DateTime Date { get; set; }
-
-        public string Details { get; set; }
-
-        public string Actions { get; set; }
-
-        public string ClientType { get; set; }
-
-        public string ClientName { get; set; }
-
-        public virtual Job Job { get; set; }
+        [Column("ID")]
+        public int Id { get; set; }
+        [Column("JobID")]
+        public int JobId { get; set; }
+        [Column("StatusID")]
+        public short StatusId { get; set; }
+      
     }
 }
