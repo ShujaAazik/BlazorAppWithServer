@@ -9,9 +9,9 @@ namespace UserManagementApi.Services
 {
     public class ContractConfigRepository
     {
-        private LookupContext _lookUpContext;
+        private readonly LookupContext _lookUpContext;
 
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
         public ContractConfigRepository(LookupContext lookUpContext, IConfiguration configuration)
         {

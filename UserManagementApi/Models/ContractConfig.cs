@@ -28,6 +28,6 @@ namespace UserManagementApi.Models
 
         public int DataFormatId { get; set; }
         
-        public virtual DataFormat DataFormat { get; set; }
+        public virtual DataFormat? DataFormat { get; set; }
     }
 }

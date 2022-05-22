@@ -10,12 +10,16 @@ namespace UserManagementApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public short ID { get; set; }
 
+        [Column("Name", TypeName= "varchar(50)")]
         public string Name { get; set; }
 
-        public int DefaultType { get; set; }
+        [Column("DefaultType")]
+        public short DefaultType { get; set; }
 
-        public int DefaultFault { get; set; }
+        [Column("DefaultFault")]
+        public short DefaultFault { get; set; }
 
-        public int DefaultStatus { get; set; }
+        [Column("DefaultStatus")]
+        public short DefaultStatus { get; set; }
     }
 }

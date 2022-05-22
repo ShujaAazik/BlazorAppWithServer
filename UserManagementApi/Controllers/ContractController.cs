@@ -21,5 +21,17 @@ namespace UserManagementApi.Controllers
         {
             return await contractRepository.ReadContractName();
         }
+
+        [HttpGet("ClientJobListDesOrd")]
+        public async Task<ActionResult<CommonResponseCM>> GetClientJobListDesOrder()
+        {
+            return await contractRepository.ReadClientJobListDesOrder();
+        }
+
+        [HttpGet("ClientJobCategories")]
+        public async Task<ActionResult<CommonResponseCM>> GetJobCategories()
+        {
+            return await contractRepository.GetJobCategories();
+        }
     }
 }

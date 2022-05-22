@@ -13,5 +13,7 @@ namespace UserManagementApi.Models
 
         public virtual List<Job> Jobs { get; set; }
 
+        public string Name { get; set; }
+
     }
 }

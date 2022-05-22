@@ -5,7 +5,8 @@
 @inject IJSRuntime JSRuntime
 @using Newtonsoft.Json
 @using UserManagement___FrontEnd.Model
-
+@using UserManagement___FrontEnd.View_Models
+    
 
 <EditForm Model="@ConfigVM.config" OnValidSubmit="@SaveContractConfig">
     <DataAnnotationsValidator />
@@ -115,7 +116,7 @@
 
     private ContractConfigRM response;
 
-    private ContractConfigRM contractResponse;
+    //private ContractConfigRM contractResponse;
 
     [Parameter]
     public int contractConfigId { get; set; }

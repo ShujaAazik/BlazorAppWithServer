@@ -19,11 +19,6 @@ namespace UserManagementApi.Models
 
         public virtual DbSet<JobCategory> JobCategories { get; set; }
 
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        }
-
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { if (!optionsBuilder.IsConfigured) { } }
     }
 }

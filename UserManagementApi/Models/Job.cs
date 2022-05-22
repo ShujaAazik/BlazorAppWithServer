@@ -26,7 +26,7 @@ namespace UserManagementApi.Models
 
         public virtual List<Appointment> Appointments { get; set; }
 
-        public virtual JobCategory JobCatergory { get; set; }
+        public virtual JobCategory JobCategory { get; set; }
 
     }
 }

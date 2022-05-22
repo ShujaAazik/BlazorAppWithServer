@@ -2,54 +2,72 @@
 @inject IJSRuntime JSRuntime
 @inject IConfiguration Configuration
 @using Newtonsoft.Json
+@using UserManagement___FrontEnd.Model
+@using UserManagement___FrontEnd.View_Models
 
 <h3>DashBoard</h3>
 
-@*<div class="col-4">
-    <canvas id="myChart"/>
-</div>*@
-
-<div class="col-6">
-    <canvas id="configChart"/>
+<div class="col-3">
+    <canvas id="configChart" />
 </div>
-
 
 
 @code {
 
     IJSObjectReference JSObjectReference { get; set; }
 
-    private ContConfigRepositoryAPI contConfigRepositoryAPI;
+    private ContractRepositoryAPI contractRepositoryAPI;
 
-    private ContractConfigRM configListResponse;
-    private object config { get; set; }
+    private ContractConfigRM contractResponse;
 
-    protected override async Task OnInitializedAsync()
-    {
-       
-    }
+    private ChartConfiguration config { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-       
 
-         contConfigRepositoryAPI = new(Configuration);
+        contractRepositoryAPI = new(Configuration);
 
-        configListResponse = await contConfigRepositoryAPI.GetContConfigAsync();
+        contractResponse = await contractRepositoryAPI.GetClientJobInfo();
 
-        config = new
-        {
-            Name = "Persentage of Accompishment",
-            ChartId = "configChart",
-            Label = JsonConvert.DeserializeObject<List<ContractConfiguration>>(configListResponse.Content).Select(x=>x.Code).ToArray(),
-            Data = Enumerable.Range(0,8).Select( y => new Random().Next(10,100)).ToArray()
+        var clientJonInfo = JsonConvert.DeserializeObject<List<ClientJobInfo>>(contractResponse.Content);
 
+        //config = new
+        //{
+        //    Name = "Persentage of Accompishment",
+        //    ChartId = "configChart",
+        //    Label = JsonConvert.DeserializeObject<List<ContractConfiguration>>(configListResponse.Content).Select(x=>x.Code).ToArray(),
+        //    Data = Enumerable.Range(0,8).Select( y => new Random().Next(10,100)).ToArray()
+
+        //};
+
+        config = new ChartConfiguration(
+            "doughnut", 
+            new PieChart(
+                clientJonInfo.Select(cji=>cji.ClientName).ToArray(), 
+                new Dataset[]{ new Dataset(
+                "Top Job Count Descending Order ",
+                clientJonInfo.Select(cji=>cji.JobCount).ToList()
+            )}));
+
+        config.options = new ChartConfigOption 
+        { 
+            plugins = new ChartOptionPlugin 
+            { 
+                legend = new ChartLegend 
+                { 
+                    display = true, 
+                    title = new ChartTitle 
+                    { 
+                        display = true, 
+                        text = "Salvation Army" 
+                    } 
+                } 
+            } 
         };
 
-         JSObjectReference = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/ChartConfig.js");
-       // await JSObjectReference.InvokeVoidAsync("DisplayChart", "myChart");
+        JSObjectReference = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/ChartConfig.js");
 
-        await JSObjectReference.InvokeVoidAsync("ChartWithConfiguration",JsonConvert.SerializeObject(config));
+        await JSObjectReference.InvokeVoidAsync("PieChartConfiguration", JsonConvert.SerializeObject(config),"configChart");
     }
 
 }
