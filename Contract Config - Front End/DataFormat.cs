@@ -1,4 +1,4 @@
-﻿namespace UserManagement___FrontEnd
+﻿namespace ContractConfig_FrontEnd
 {
     public class DataFormat
     {

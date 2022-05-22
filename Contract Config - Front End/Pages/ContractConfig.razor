@@ -1,0 +1,100 @@
+﻿@page "/ContractConfig"
+@using ContractConfig_FrontEnd.Components
+@inject IConfiguration Configuration
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="row m-3 col-auto">
+    <div class="form-group">
+        <select @bind="contractConfigVM.search.ContractId" class="form-control-sm">
+            <option value="0">----Select Contract----</option>
+            @foreach (var contract in contractConfigVM.contracts)
+            {
+                <option value="@contract.ContractId">@contract.Name</option>
+            }
+        </select>
+        <input type="text" @bind="contractConfigVM.search.Code" placeholder="Search Code" class="form-control-sm" />
+        <input type="text" @bind="contractConfigVM.search.Description" placeholder="Search Description" class="form-control-sm" />
+        <select @bind="contractConfigVM.search.DataFormatId" class="form-control-sm">
+            <option value="0">----Select Format Type----</option>
+            @foreach (var type in contractConfigVM.dataFormats)
+            {
+                <option value="@type.DataFormatId">@type.Name</option>
+            }
+        </select>
+        <button @onclick="@SearchText" class="btn btn-primary">Search</button>
+    </div>
+</div>
+
+<div class="row m-3 col-6">
+    @if (contractConfigVM.configList.Any())
+    {
+        <table id="contractConfigTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Contract</th>
+                    <th>Code</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Edit</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var config in contractConfigVM.configList)
+                {
+                    <tr>
+                        <td>@config.ContractConfigId</td>
+                        <td>@contractConfigVM.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
+                        <td>@config.Code</td>
+                        <td>@config.Value</td>
+                        <td>@config.Description</td>
+                        <td>@config.DataFormat.Name</td>
+                        <td><button @onclick="@(()=>navigationManager.NavigateTo($"UpdateConfig/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-pencil" /></button></td>
+                        <td><button @onclick="@(()=>navigationManager.NavigateTo($"ConfirmationPrompt/{config.ContractConfigId}"))" class="btn btn-primary"><i class="oi oi-trash" /></button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>The List is Empty</p>
+    }
+</div>
+
+<div class="row m-3 col-6">
+    <div>
+        <button @onclick="@(() => navigationManager.NavigateTo("AddconfigForm"))" class="btn btn-primary btn-circle"><i class="oi oi-plus" /></button>
+    </div>
+</div>
+
+@code {
+
+    private ContractConfigListVM contractConfigVM = new();
+
+    private ContConfigRepositoryAPI contConfigRepositoryAPI;
+
+    protected override async Task OnInitializedAsync()
+    {
+        contConfigRepositoryAPI = new(Configuration);
+
+        contractConfigVM.dataFormats = (await contConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+
+        contractConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+
+        contractConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeAsync<object>("DataTablesAdd", "#contractConfigTable");
+    }
+
+    protected async Task SearchText()
+    {
+        contractConfigVM.configList = (await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)).ToList();
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UserManagement___FrontEnd
+namespace ContractConfig_FrontEnd
 {
     public static class KTRepositoryAPI
     {

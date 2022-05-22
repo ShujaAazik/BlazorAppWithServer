@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataTables\**" />
+    <Content Remove="DataTables\**" />
+    <EmbeddedResource Remove="DataTables\**" />
+    <None Remove="DataTables\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="datatables.net-dt" Version="1.11.5" />
     <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

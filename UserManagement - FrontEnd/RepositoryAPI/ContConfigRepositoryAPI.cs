@@ -6,71 +6,100 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using UserManagement___FrontEnd.View_Models;
 
 namespace UserManagement___FrontEnd
 {
     public class ContConfigRepositoryAPI
     {
-        private string baseUrl;
-        private HttpClient client = new();
-        private HttpResponseMessage response = null;
+        private readonly string baseUrl;
+        private readonly HttpClient client = new();
+        private  HttpResponseMessage response = null;
 
         public ContConfigRepositoryAPI(IConfiguration configuration)
         {
             baseUrl = configuration["BaseUrl"];
         }
 
-        public async Task<IList<ContractConfiguration>> GetContConfigAsync()
+        public async Task<ContractConfigRM> GetContConfigAsync()
         {
-            var urlPath = Path.Combine(baseUrl, "ContractConfig");
+            var urlPath = Path.Combine(baseUrl, "ContractConfig/ContractDictionary");
 
             response = await client.GetAsync(urlPath);
 
-            var contractCons = (List<ContractConfiguration>)await response.Content.ReadAsAsync<IEnumerable<ContractConfiguration>>();
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
 
-            return contractCons;
+            return responseModel;
         }
 
-        public async Task<IList<ContractConfiguration>> GetFilteredContConfigAsync(ContractConfigSearch contractConfigSearch)
+        public async Task<ContractConfigRM> GetFilteredContConfigAsync(ContractConfigSearch contractConfigSearch)
         {
 
             var RequestUri = new Uri(Path.Combine(baseUrl, "ContractConfig/SearchContractConfigs"));
 
             response = await client.PostAsJsonAsync<ContractConfigSearch>(RequestUri, contractConfigSearch);
 
-            var contractCons = (List<ContractConfiguration>)await response.Content.ReadAsAsync<IEnumerable<ContractConfiguration>>();
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
 
-            return contractCons;
+            return responseModel;
         }
 
-        public async Task<IList<DataFormat>> GetDataFormatAsync()
+        public async Task<ContractConfigRM> GetDataFormatAsync()
         {
             var urlPath = Path.Combine(baseUrl, "DataFormat");
 
             response = await client.GetAsync(urlPath);
 
-            var dataFormats = (List<DataFormat>)await response.Content.ReadAsAsync<IEnumerable<DataFormat>>();
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
 
-            return dataFormats;
+            return responseModel;
         }
 
-        public async Task AddContConfigAsync(ContractConfiguration config)
+        public async Task<ContractConfigRM> AddContConfigAsync(ContractConfiguration config)
         {
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+            try
+            {
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
 
-            response = await client.PostAsync($"{baseUrl}ContractConfig/CreateContractConfig", jsonContent);
+                response = await client.PostAsync($"{baseUrl}ContractConfig/CreateContractConfig", jsonContent);
+
+                var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
+
+                return responseModel;
+            }
+            catch (Exception)
+            {
+                return new ContractConfigRM(false, "Error occurred while contacting the server.");
+            }
         }
 
-        public async Task UpdateContConfigAsync(ContractConfiguration config)
+        public async Task<ContractConfigRM> UpdateContConfigAsync(ContractConfiguration config)
         {
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
+            try
+            {
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(config), Encoding.UTF8, "application/json");
 
-            response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", jsonContent);
+                response = await client.PutAsync($"{baseUrl}ContractConfig/{config.ContractConfigId}", jsonContent);
+
+                var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
+
+                return responseModel;
+            }
+            catch (Exception)
+            {
+
+                return new ContractConfigRM(false, "Error occurred while contacting the server.");
+            }
         }
 
-        public async Task DeleteContConfigAsync(int id)
+        public async Task<ContractConfigRM> DeleteContConfigAsync(int id)
         {
             response = await client.DeleteAsync($"{baseUrl}ContractConfig/{id}");
+
+            var responseModel = await response.Content.ReadAsAsync<ContractConfigRM>();
+
+            return responseModel;
         }
+
     }
 }

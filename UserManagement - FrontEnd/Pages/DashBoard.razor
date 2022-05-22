@@ -1,0 +1,73 @@
+﻿@page "/DashBoard"
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+@using Newtonsoft.Json
+@using UserManagement___FrontEnd.Model
+@using UserManagement___FrontEnd.View_Models
+
+<h3>DashBoard</h3>
+
+<div class="col-3">
+    <canvas id="configChart" />
+</div>
+
+
+@code {
+
+    IJSObjectReference JSObjectReference { get; set; }
+
+    private ContractRepositoryAPI contractRepositoryAPI;
+
+    private ContractConfigRM contractResponse;
+
+    private ChartConfiguration config { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        contractRepositoryAPI = new(Configuration);
+
+        contractResponse = await contractRepositoryAPI.GetClientJobInfo();
+
+        var clientJonInfo = JsonConvert.DeserializeObject<List<ClientJobInfo>>(contractResponse.Content);
+
+        //config = new
+        //{
+        //    Name = "Persentage of Accompishment",
+        //    ChartId = "configChart",
+        //    Label = JsonConvert.DeserializeObject<List<ContractConfiguration>>(configListResponse.Content).Select(x=>x.Code).ToArray(),
+        //    Data = Enumerable.Range(0,8).Select( y => new Random().Next(10,100)).ToArray()
+
+        //};
+
+        config = new ChartConfiguration(
+            "doughnut", 
+            new PieChart(
+                clientJonInfo.Select(cji=>cji.ClientName).ToArray(), 
+                new Dataset[]{ new Dataset(
+                "Top Job Count Descending Order ",
+                clientJonInfo.Select(cji=>cji.JobCount).ToList()
+            )}));
+
+        config.options = new ChartConfigOption 
+        { 
+            plugins = new ChartOptionPlugin 
+            { 
+                legend = new ChartLegend 
+                { 
+                    display = true, 
+                    title = new ChartTitle 
+                    { 
+                        display = true, 
+                        text = "Salvation Army" 
+                    } 
+                } 
+            } 
+        };
+
+        JSObjectReference = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/ChartConfig.js");
+
+        await JSObjectReference.InvokeVoidAsync("PieChartConfiguration", JsonConvert.SerializeObject(config),"configChart");
+    }
+
+}

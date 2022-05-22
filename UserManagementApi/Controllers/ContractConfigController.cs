@@ -11,54 +11,72 @@ namespace UserManagementApi.Controllers
     {
         private readonly ContractConfigRepository _contractConfigRepository;
 
-        public ContractConfigController(DbConnect context,IConfiguration configuration)
+        public ContractConfigController(LookupContext context,IConfiguration configuration)
         {
             _contractConfigRepository = new ContractConfigRepository(context, configuration);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContractConfig>>> GetContractConfigs()
+        public async Task<ActionResult<CommonResponseCM>> GetContractConfigs()
         {
-            var configs = await _contractConfigRepository.ReadContractConfigs();
+            var configs = new CommonResponseCM(true, "The api is working successfully.");
+
+            try
+            {
+                await _contractConfigRepository.ReadContractDictionary();
+            }
+            catch (Exception ex)
+            {
+                configs.Succeeded = false;
+                configs.Message = ex.Message;
+            }
             
-            return new ActionResult<IEnumerable<ContractConfig>>(configs);
+            return new ActionResult<CommonResponseCM>(configs);
+        }
+
+        [HttpGet("ContractDictionary")]
+        public async Task<ActionResult<CommonResponseCM>> GetContractDictionary()
+        {
+            return await _contractConfigRepository.ReadContractDictionary();
         }
 
         [HttpPost("CreateContractConfig")]
-        public async Task<IActionResult> PostContractConfig(ContractConfig contractConfig)
+        public async Task<ActionResult<CommonResponseCM>> PostContractConfig(ContractConfig contractConfig)
         {
-            await _contractConfigRepository.AddContractConfig(contractConfig);
+            var response = await _contractConfigRepository.AddContractConfig(contractConfig);
 
-            return Accepted();
+            return response;
         }
 
         [HttpPost("SearchContractConfigs")]
-        public async Task<ActionResult<IEnumerable<ContractConfig>>> SearchContractConfig(ContractConfigSearchCM contractConficSearchCM)
+        public async Task<ActionResult<CommonResponseCM>> SearchContractConfig(ContractConfigSearchCM contractConficSearchCM)
         {
             var configs = await _contractConfigRepository.GetFilteredConfigList(contractConficSearchCM);
 
-            return new ActionResult<IEnumerable<ContractConfig>>(configs);
+            return new ActionResult<CommonResponseCM>(configs);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutContractConfig(int id, ContractConfig contractConfig)
+        public async Task<ActionResult<CommonResponseCM>> PutContractConfig(int id, ContractConfig contractConfig)
         {
+            CommonResponseCM response;
+
             if (contractConfig.ContractConfigId != id)
             {
-                return Conflict();
+                return new CommonResponseCM(false, $"{contractConfig.ContractId} and {id} are identical.");
             }
 
-            await _contractConfigRepository.UpdateContractConfig(contractConfig);
+            response = await _contractConfigRepository.UpdateContractConfig(contractConfig);
 
-            return Accepted();
+            return response;
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteContractConfig(int id)
+        public async Task<ActionResult<CommonResponseCM>> DeleteContractConfig(int id)
         {
-            await _contractConfigRepository.DeleteContractConfig(id);
+            var response = await _contractConfigRepository.DeleteContractConfig(id);
 
-            return Accepted();
+            return response;
         }
     }
 }

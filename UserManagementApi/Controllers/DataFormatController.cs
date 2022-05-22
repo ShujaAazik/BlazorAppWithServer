@@ -11,15 +11,15 @@ namespace UserManagementApi.Controllers
     {
         private readonly ContractConfigRepository _contractConfigRepository;
 
-        public DataFormatController(DbConnect context,IConfiguration configuration)
+        public DataFormatController(LookupContext context,IConfiguration configuration)
         {
             _contractConfigRepository = new ContractConfigRepository(context, configuration);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DataFormat>>> GetAllDataFormats()
+        public async Task<ActionResult<CommonResponseCM>> GetAllDataFormats()
         {
-            return new ActionResult<IEnumerable<DataFormat>>(await _contractConfigRepository.GetDataFormats());
+            return new ActionResult<CommonResponseCM>(await _contractConfigRepository.GetDataFormats());
         }
 
         [HttpPost]

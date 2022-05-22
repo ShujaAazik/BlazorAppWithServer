@@ -3,14 +3,35 @@
 @inject IConfiguration Configuration
 @inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
+@using Newtonsoft.Json
+@using UserManagement___FrontEnd.Model
+@using UserManagement___FrontEnd.View_Models
+
+<div>
+    <div class="modal fade" id="ErrorModal" tabindex="-1" role="dialog" aria-labelledby="headerModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="headerModal">Error Occured</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-danger">
+                    <p>@message</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row m-3 col-auto">
     <div class="form-group">
         <select @bind="contractConfigVM.search.ContractId" class="form-control-sm">
-            <option value="0">----Select Contract----</option>
+            <option>----Select Contract----</option>
             @foreach (var contract in contractConfigVM.contracts)
             {
-                <option value="@contract.ContractId">@contract.Name</option>
+                <option value="@contract.ID">@contract.Name</option>
             }
         </select>
         <input type="text" @bind="contractConfigVM.search.Code" placeholder="Search Code" class="form-control-sm" />
@@ -47,7 +68,17 @@
                 {
                     <tr>
                         <td>@config.ContractConfigId</td>
-                        <td>@contractConfigVM.contracts.First(offset=> offset.ContractId == config.ContractId).Name</td>
+                        <td>
+                            @if (contractConfigVM.contracts.Any(contract => contract.ID == config.ContractId))
+                            {
+                                @contractConfigVM.contracts.First(offset=>config.ContractId == offset.ID).Name
+                            }
+                            else
+                            {
+                                @config.ContractConfigId;
+                            }
+
+                        </td>
                         <td>@config.Code</td>
                         <td>@config.Value</td>
                         <td>@config.Description</td>
@@ -71,21 +102,44 @@
     </div>
 </div>
 
+
 @code {
 
     private ContractConfigListVM contractConfigVM = new();
 
     private ContConfigRepositoryAPI contConfigRepositoryAPI;
 
+    private ContractRepositoryAPI contractRepositoryAPI;
+
+    private ContractConfigRM configListResponse;
+
+    private ContractConfigRM dataFormatListResponse;
+
+    private ContractConfigRM contractResponse;
+
+    private string? message;
+
     protected override async Task OnInitializedAsync()
     {
         contConfigRepositoryAPI = new(Configuration);
 
-        contractConfigVM.dataFormats = (await contConfigRepositoryAPI.GetDataFormatAsync()).OrderBy(offset => offset.DataFormatId).ToList();
+        contractRepositoryAPI = new(Configuration);
 
-        contractConfigVM.configList = (await contConfigRepositoryAPI.GetContConfigAsync()).OrderBy(offset => offset.ContractConfigId).ToList();
+        configListResponse = await contConfigRepositoryAPI.GetContConfigAsync();
 
-        contractConfigVM.contracts = KTRepositoryAPI.GetContractsAsync().ToList();
+        dataFormatListResponse = await contConfigRepositoryAPI.GetDataFormatAsync();
+
+        contractResponse = await contractRepositoryAPI.GetContractsAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ValidateApiResponse<ContractConfiguration>(configListResponse, ref contractConfigVM.configList);
+
+        ValidateApiResponse<DataFormat>(dataFormatListResponse, ref contractConfigVM.dataFormats);
+
+        ValidateApiResponse<Contract>(contractResponse, ref contractConfigVM.contracts);
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -95,6 +149,28 @@
 
     protected async Task SearchText()
     {
-        contractConfigVM.configList = (await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)).ToList();
+        ValidateApiResponse<ContractConfiguration>((await contConfigRepositoryAPI.GetFilteredContConfigAsync(contractConfigVM.search)), ref contractConfigVM.configList);
+    }
+
+    private void ValidateApiResponse<T>(ContractConfigRM contractConfigRM, ref List<T> content)
+    {
+        try
+        {
+            if (contractConfigRM.Succeeded)
+            {
+                content = JsonConvert.DeserializeObject<List<T>>(contractConfigRM.Content)
+                                            .ToList();
+            }
+            else
+            {
+                message = contractConfigRM.Message;
+                JSRuntime.InvokeAsync<object>("ShowErrorMessage", "#ErrorModal");
+            }
+        }
+        catch (Exception e)
+        {
+            message = e.Message;
+            JSRuntime.InvokeAsync<object>("ShowErrorMessage", "#ErrorModal");
+        }
     }
 }
