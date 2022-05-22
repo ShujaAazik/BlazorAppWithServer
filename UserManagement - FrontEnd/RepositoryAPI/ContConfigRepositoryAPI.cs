@@ -6,14 +6,15 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using UserManagement___FrontEnd.View_Models;
 
 namespace UserManagement___FrontEnd
 {
     public class ContConfigRepositoryAPI
     {
-        private string baseUrl;
-        private HttpClient client = new();
-        private HttpResponseMessage response = null;
+        private readonly string baseUrl;
+        private readonly HttpClient client = new();
+        private  HttpResponseMessage response = null;
 
         public ContConfigRepositoryAPI(IConfiguration configuration)
         {
@@ -66,7 +67,7 @@ namespace UserManagement___FrontEnd
 
                 return responseModel;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new ContractConfigRM(false, "Error occurred while contacting the server.");
             }

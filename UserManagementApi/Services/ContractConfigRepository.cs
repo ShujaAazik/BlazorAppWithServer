@@ -9,9 +9,9 @@ namespace UserManagementApi.Services
 {
     public class ContractConfigRepository
     {
-        private LookupContext _lookUpContext;
+        private readonly LookupContext _lookUpContext;
 
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
         public ContractConfigRepository(LookupContext lookUpContext, IConfiguration configuration)
         {
@@ -113,34 +113,6 @@ namespace UserManagementApi.Services
             }
 
             return response;
-        }
-
-        public void SQLCommandTest()
-        {
-            string queryString = "SELECT [ID],[Name] FROM [dbo].[Contract]";
-            string connectionString = "Server=kth0-tvs-tsql1.dev.lhc.loc;Database=KTHS;User ID=Suja;Password=!GoldenLion46;";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(queryString, connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                var resultList = new Hashtable();
-                try
-                {
-                    while (reader.Read())
-                    {
-                        resultList.Add(reader["ID"], reader["Name"]);
-                        Console.WriteLine(String.Format("{0}, {1}",
-                        reader["ID"], reader["Name"]));// etc
-                    }
-                }
-                finally
-                {
-                    // Always call Close when done reading.
-                    reader.Close();
-                }
-            }
         }
         
         public async Task<CommonResponseCM> ReadContractDictionary()
