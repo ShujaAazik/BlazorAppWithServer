@@ -130,7 +130,7 @@
         userList = (await userRepositoryAPI.GetUsersAsync()).OrderBy(offset => offset.UserId).ToList();
     }
 
-    private async Task UpdateUserModel(int value)
+    private void UpdateUserModel(int value)
     {
         if (value > 0)
         {

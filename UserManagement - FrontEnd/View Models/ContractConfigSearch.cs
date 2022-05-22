@@ -1,4 +1,4 @@
-﻿namespace UserManagement___FrontEnd
+﻿namespace UserManagement___FrontEnd.View_Models
 {
     public class ContractConfigSearch
     {
