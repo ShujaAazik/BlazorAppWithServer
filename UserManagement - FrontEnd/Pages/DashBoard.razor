@@ -11,6 +11,35 @@
     <canvas id="configChart" />
 </div>
 
+<div class="row m-3 col-6">
+
+    @if (clientJonInfo != null && clientJonInfo.Any())
+    {
+        <table class="table table-md table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>JobCount</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var client in clientJonInfo)
+                {
+                    <tr>
+                        <td>@client.ClientId</td>
+                        <td>@client.ClientName</td>
+                        <td>@client.JobCatergoryCount.Sum(jcc=>jcc)</td>
+                        <td><center><button><i class="oi oi-eye" @onclick="(args)=>DisplayChart(args,client.ClientId)" /></button></center></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
+
 
 @code {
 
@@ -22,52 +51,116 @@
 
     private ChartConfiguration config { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private List<ClientJobInfo> clientJonInfo;
+
+    private List<JobCategory> jobCategories;
+
+    private object chartReff { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-
         contractRepositoryAPI = new(Configuration);
-
         contractResponse = await contractRepositoryAPI.GetClientJobInfo();
 
-        var clientJonInfo = JsonConvert.DeserializeObject<List<ClientJobInfo>>(contractResponse.Content);
+        if (contractResponse != null)
+        {
+            clientJonInfo = JsonConvert.DeserializeObject<List<ClientJobInfo>>(contractResponse.Content);
+        }
 
-        //config = new
+        contractResponse = await contractRepositoryAPI.GetJobCatergories();
+
+        //clientJonInfo = new List<ClientJobInfo>
         //{
-        //    Name = "Persentage of Accompishment",
-        //    ChartId = "configChart",
-        //    Label = JsonConvert.DeserializeObject<List<ContractConfiguration>>(configListResponse.Content).Select(x=>x.Code).ToArray(),
-        //    Data = Enumerable.Range(0,8).Select( y => new Random().Next(10,100)).ToArray()
-
+        //    new ClientJobInfo
+        //    {
+        //        ClientId = 1,
+        //        ClientName = "ABC",
+        //        JobCatergoryCount = new int[]{10,20,30},
+        //        JobsCatergoryIDs = new int[]{1,2,3}
+        //    },
+        //    new ClientJobInfo
+        //    {
+        //        ClientId = 2,
+        //        ClientName = "XYZ",
+        //        JobCatergoryCount = new int[]{40,50,60},
+        //        JobsCatergoryIDs = new int[]{1,2,3}
+        //    }
         //};
 
-        config = new ChartConfiguration(
-            "doughnut", 
-            new PieChart(
-                clientJonInfo.Select(cji=>cji.ClientName).ToArray(), 
-                new Dataset[]{ new Dataset(
-                "Top Job Count Descending Order ",
-                clientJonInfo.Select(cji=>cji.JobCount).ToList()
-            )}));
+        jobCategories = JsonConvert.DeserializeObject<List<JobCategory>>(contractResponse.Content);
 
-        config.options = new ChartConfigOption 
-        { 
-            plugins = new ChartOptionPlugin 
-            { 
-                legend = new ChartLegend 
-                { 
-                    display = true, 
-                    title = new ChartTitle 
-                    { 
-                        display = true, 
-                        text = "Salvation Army" 
-                    } 
-                } 
-            } 
-        };
+        //jobCategories = new List<JobCategory>
+        //{
+        //    new JobCategory
+        //    {
+        //        ID = 1,
+        //        Name = "Type 1"
+        //    },
+        //    new JobCategory
+        //    {
+        //        ID = 2,
+        //        Name = "Type 2"
+        //    },
+        //    new JobCategory
+        //    {
+        //        ID = 3,
+        //        Name = "Type 3"
+        //    }
+        //};
+    }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (clientJonInfo != null)
+        {
+            await PieChartConfig
+            (
+                "Top Job Count Descending Order",
+                clientJonInfo.Select(cji => cji.ClientName).ToArray(),
+                clientJonInfo.Select(cji => cji.JobCatergoryCount.Sum(jc => jc)).ToList()
+            );
+        }
+    }
+
+    protected async Task DisplayChart(MouseEventArgs e, int ClientID)
+    {
+        var jobInfo = clientJonInfo.First(cji => cji.ClientId == ClientID);
+
+        var clientJobCategories = jobCategories.Where(jc => jobInfo.JobsCatergoryIDs.Any(jci => jci == jc.ID)).Select(jc => jc.Name).ToArray();
+
+        await PieChartConfig(jobInfo.ClientName, clientJobCategories, jobInfo.JobCatergoryCount);
+    }
+
+    private async Task PieChartConfig(string Title, string[] Labels, IEnumerable<int> Dataset)
+    {
         JSObjectReference = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/ChartConfig.js");
 
-        await JSObjectReference.InvokeVoidAsync("PieChartConfiguration", JsonConvert.SerializeObject(config),"configChart");
+        config = new ChartConfiguration(
+            "doughnut",
+            new PieChart(
+                Labels,
+                new Dataset[]{ new Dataset(
+                Title,
+                Dataset
+            )}));
+
+        config.options = new ChartConfigOption
+            {
+                plugins = new ChartOptionPlugin
+                {
+                    legend = new ChartLegend
+                    {
+                        display = true,
+                        title = new ChartTitle
+                        {
+                            display = true,
+                            text = "Top Job Count Descending Order"
+                        }
+                    }
+                }
+            };
+
+        JSObjectReference = await JSObjectReference.InvokeAsync<IJSObjectReference>("PieChartConfiguration", JsonConvert.SerializeObject(config), "configChart");
     }
 
 }

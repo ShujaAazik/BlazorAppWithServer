@@ -18,7 +18,7 @@ namespace UserManagementApi.Services
 
         public async Task<CommonResponseCM> GetJobCategories()
         {
-            var jobCatergories = await _kthsContext.JobCategories.ToListAsync();
+            var jobCatergories = await _kthsContext.JobCategories.Select(jc=> new { ID = jc.ID, Name = jc.Name }).ToArrayAsync();
 
             CommonResponseCM response;
 
@@ -45,15 +45,14 @@ namespace UserManagementApi.Services
                 {
                     ClientId = cj.ID,
                     ClientName = cj.Name,
-                    Jobs = cj.Jobs
+                    JobCatergoryCount = cj.Jobs
                     .GroupBy(j => j.JobCategoryID)
                     .Select(j => j.Count())
                     .ToList(),
-                    JobsIDs = cj.Jobs
+                    JobsCatergoryIDs = cj.Jobs
                     .GroupBy(j => j.JobCategoryID)
                     .Select(j => j.Key)
-                    .ToList(),
-                    JobCount = cj.Jobs.Count
+                    .ToList()
                 })
                 .ToList();
 

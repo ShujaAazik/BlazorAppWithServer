@@ -33,9 +33,17 @@
 
 export function PieChartConfiguration(config, chartId)
 {
-    var config = JSON.parse(config)
+    var config = JSON.parse(config);
+
+    //var oldcanv = document.getElementById(chartId);
+
+    //if (oldcanv != null)
+    //{
+    //    document.removeChild(oldcanv);
+    //}
 
     var chartContent = document.getElementById(chartId).getContext('2d');
 
-    const configChart = new Chart(chartContent, config);
-}
+    return new Chart(chartContent, config);
+};
+
